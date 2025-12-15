@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
@@ -80,46 +80,62 @@ Cuando respondas:
 
 Mantén respuestas bajo 150 palabras. Responde en el mismo idioma de la pregunta.`;
 
+// Initialize Gemini Client
+// Note: Client expects GEMINI_API_KEY in env or passed to constructor.
+// Using getGenerativeModel with systemInstruction.
+
 app.post('/api/chat', async (req, res) => {
     try {
-        const { messages } = req.body;
-        if (!messages) {
-            return res.status(400).json({ error: 'Messages required' });
-        }
+        const { messages, apiKey: clientApiKey } = req.body;
 
-        const apiKey = process.env.ANTHROPIC_API_KEY;
+        // Prioritize server-side env key, allow client-side key for testing/demo if server key missing
+        const apiKey = process.env.GEMINI_API_KEY || clientApiKey;
+
         if (!apiKey) {
-            console.error("Missing ANTHROPIC_API_KEY");
+            console.error("Missing GEMINI_API_KEY");
             return res.status(500).json({ error: 'Server misconfiguration: No API Key' });
         }
 
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": apiKey,
-                "anthropic-version": "2023-06-01"
-            },
-            body: JSON.stringify({
-                model: "claude-3-haiku-20240307",
-                max_tokens: 1000,
-                system: systemPrompt,
-                messages: messages
-            })
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: systemPrompt
         });
 
-        const data = await response.json();
+        // Convert messages to Gemini format (user vs model)
+        // Frontend sends: [{role: "user", content: "hi"}, {role: "assistant", content: "hello"}]
+        // Gemini expects: [{role: "user", parts: [{text: "hi"}]}, {role: "model", parts: [{text: "hello"}]}]
 
-        if (!response.ok) {
-            console.error('Anthropic API Error:', data);
-            return res.status(response.status).json(data);
+        const history = (messages || []).slice(0, -1).map(msg => ({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        }));
+
+        const lastMessage = messages[messages.length - 1];
+        if (!lastMessage || lastMessage.role !== 'user') {
+            return res.status(400).json({ error: 'Invalid message format: Last message must be from user' });
         }
 
-        res.json(data);
+        const chat = model.startChat({
+            history: history,
+            generationConfig: {
+                maxOutputTokens: 1000,
+            },
+        });
+
+        const result = await chat.sendMessage(lastMessage.content);
+        const response = await result.response;
+        const text = response.text();
+
+        // mimic anthropic response structure to minimize frontend breakage, or just send text
+        // Let's send a standard format
+        res.json({
+            content: [{ text: text }]
+        });
 
     } catch (error) {
         console.error('Server Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });
 

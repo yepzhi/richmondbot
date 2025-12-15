@@ -14,6 +14,8 @@
             --text-dim: rgba(255, 255, 255, 0.6);
             --bot-bg: rgba(255, 255, 255, 0.05);
             --user-bg: #667eea;
+            --chip-bg: rgba(255, 255, 255, 0.08);
+            --chip-hover: rgba(255, 255, 255, 0.12);
         }
 
         * {
@@ -48,6 +50,9 @@
             align-items: center;
             justify-content: space-between;
             z-index: 10;
+            opacity: 0;
+            /* Hidden initially for centered view */
+            transition: opacity 0.3s ease;
         }
 
         .header-info {
@@ -56,41 +61,23 @@
             gap: 12px;
         }
 
-        .bot-avatar-large {
-            width: 40px;
-            height: 40px;
+        .bot-avatar-small {
+            width: 32px;
+            height: 32px;
             background: var(--primary-gradient);
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+            font-size: 16px;
         }
 
         .header-text h1 {
             font-size: 16px;
             font-weight: 600;
-            margin-bottom: 2px;
         }
 
-        .header-text p {
-            font-size: 12px;
-            color: var(--text-dim);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: #2ed573;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        /* Chat Area */
+        /* Main Chat Area */
         #chat-container {
             flex: 1;
             overflow-y: auto;
@@ -99,8 +86,99 @@
             flex-direction: column;
             gap: 16px;
             scroll-behavior: smooth;
+            position: relative;
         }
 
+        /* Centered Welcome State */
+        .welcome-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .welcome-container.hidden {
+            opacity: 0;
+            transform: translate(-50%, -60%);
+            pointer-events: none;
+        }
+
+        .bot-logo-large {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(118, 75, 162, 0.4);
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--text-dim);
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        /* Quick Action Chips */
+        .chips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .chip-btn {
+            background: var(--chip-bg);
+            border: 1px solid var(--glass-border);
+            padding: 16px;
+            border-radius: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-dim);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chip-btn:hover {
+            background: var(--chip-hover);
+            transform: translateY(-2px);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .chip-icon {
+            font-size: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Message Styles */
         .message {
             display: flex;
             align-items: flex-start;
@@ -159,7 +237,6 @@
         }
 
         .message.user .message-content {
-            background: var(--user-bg);
             background: var(--primary-gradient);
             border-top-right-radius: 4px;
             color: white;
@@ -176,6 +253,7 @@
             display: flex;
             gap: 10px;
             align-items: flex-end;
+            margin-bottom: 0;
         }
 
         .input-wrapper {
@@ -197,20 +275,19 @@
             background: transparent;
             border: none;
             color: white;
-            padding: 12px 16px;
+            padding: 14px 18px;
             font-size: 16px;
-            /* Prevents zoom on mobile */
             font-family: inherit;
             resize: none;
             max-height: 120px;
-            min-height: 44px;
+            min-height: 50px;
             outline: none;
             display: block;
         }
 
         #send-btn {
-            width: 44px;
-            height: 44px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: none;
             background: var(--primary-gradient);
@@ -225,12 +302,6 @@
 
         #send-btn:active {
             transform: scale(0.95);
-        }
-
-        #send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #333;
         }
 
         /* Typing Indicator */
@@ -288,70 +359,101 @@
             background: rgba(102, 126, 234, 0.2);
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 480px) {
-            .chat-header {
-                padding: 12px 16px;
+            .chips-grid {
+                grid-template-columns: 1fr;
             }
 
-            #chat-container {
-                padding: 16px;
+            .bot-logo-large {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
             }
 
-            .message {
-                max-width: 90%;
+            .welcome-title {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="chat-header">
+    <!-- Header (Hidden initially) -->
+    <div class="chat-header" id="header">
         <div class="header-info">
-            <div class="bot-avatar-large">🤖</div>
+            <div class="bot-avatar-small">🤖</div>
             <div class="header-text">
                 <h1>Richmond Support</h1>
-                <p><span class="status-dot"></span> Online • AI Assistant</p>
             </div>
         </div>
     </div>
 
+    <!-- Main Container -->
     <div id="chat-container">
-        <!-- Welcome Message -->
-        <div class="message bot">
-            <div class="message-avatar">🤖</div>
-            <div class="message-content">
-                Hi! I'm the Richmond AI assistant. How can I help you regarding Access Codes, Login, or Materials?
+
+        <!-- Centered Welcome View -->
+        <div class="welcome-container" id="welcome-view">
+            <div class="bot-logo-large">🤖</div>
+            <h1 class="welcome-title">How can I help you?</h1>
+            <p class="welcome-subtitle">I'm your AI assistant for Richmond Learning Platform. Ask me about codes, login
+                issues, or app downloads.</p>
+
+            <div class="chips-grid">
+                <button class="chip-btn" onclick="sendQuickPrompt('No encuentro mi Access Code')">
+                    <span class="chip-icon">🔑</span>
+                    I can't find my Access Code
+                </button>
+                <button class="chip-btn" onclick="sendQuickPrompt('How do I register?')">
+                    <span class="chip-icon">📝</span>
+                    How do I register?
+                </button>
+                <button class="chip-btn" onclick="sendQuickPrompt('Dónde descargo la app?')">
+                    <span class="chip-icon">📱</span>
+                    Where do I download the app?
+                </button>
+                <button class="chip-btn" onclick="sendQuickPrompt('Forgot my password')">
+                    <span class="chip-icon">🔒</span>
+                    Forgot my password
+                </button>
             </div>
         </div>
+
+        <!-- Messages Area (Populated via JS) -->
+        <div id="messages-list"></div>
+
     </div>
 
+    <!-- Input -->
     <div class="input-area">
         <div class="input-wrapper">
             <textarea id="user-input" placeholder="Type a message..." rows="1"></textarea>
         </div>
         <button id="send-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
-            ```
         </button>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        // Point to the Hugging Face Space backend (Absolute URL needed for GitHub Pages)
         const API_ENDPOINT = 'https://yepzhi-richmondbot.hf.space/api/chat';
 
+        let hasStarted = false;
+        let isProcessing = false;
+        const conversationHistory = [];
+
+        // UI Refs
+        const welcomeView = document.getElementById('welcome-view');
+        const header = document.getElementById('header');
+        const messagesList = document.getElementById('messages-list');
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
-        let isProcessing = false;
 
-        const conversationHistory = [];
-
+        // Resources for Links
         const resources = {
             registro: { title: "Register", url: "https://www.richmondlp.com/register" },
             login: { title: "Login", url: "https://www.richmondlp.com" },
@@ -361,13 +463,26 @@
             productos: { title: "My Products", url: "https://richmondlp.com" }
         };
 
-        // --- UI LOGIC ---
+        // --- TRANSITION LOGIC ---
+        function transitionToChat() {
+            if (hasStarted) return;
+            hasStarted = true;
+            welcomeView.classList.add('hidden');
+            header.style.opacity = '1';
+
+            // Allow animation to play then remove from layout flow if needed, 
+            // but opacity/pointer-events is usually enough.
+            setTimeout(() => {
+                welcomeView.style.display = 'none';
+            }, 500);
+        }
+
+        // --- CHAT LOGIC ---
 
         function autoResize() {
             userInput.style.height = 'auto';
             userInput.style.height = userInput.scrollHeight + 'px';
         }
-        userInput.addEventListener('input', autoResize);
 
         function scrollToBottom() {
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -384,9 +499,8 @@
             const content = document.createElement('div');
             content.className = 'message-content';
 
-            // Format simple markdown-like bold
+            // Simple formatting
             let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            // Convert newlines
             formattedText = formattedText.replace(/\n/g, '<br>');
 
             content.innerHTML = formattedText;
@@ -409,18 +523,24 @@
             msgDiv.appendChild(content);
 
             if (isUser) {
-                // Swap order for user
                 msgDiv.innerHTML = '';
                 msgDiv.appendChild(content);
                 msgDiv.appendChild(avatar);
             }
 
-            chatContainer.appendChild(msgDiv);
+            messagesList.appendChild(msgDiv);
             scrollToBottom();
         }
 
-        async function handleSend() {
-            const text = userInput.value.trim();
+        function sendQuickPrompt(text) {
+            transitionToChat();
+            userInput.value = text; // optional: visual feedback or just send
+            handleSend(text);
+        }
+
+        async function handleSend(manualText = null) {
+            transitionToChat();
+            const text = manualText || userInput.value.trim();
             if (!text || isProcessing) return;
 
             isProcessing = true;
@@ -428,7 +548,7 @@
             userInput.value = '';
             userInput.style.height = 'auto';
 
-            // Show Typing
+            // Typing Indicator
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message bot typing';
             typingDiv.innerHTML = `
@@ -441,14 +561,11 @@
                     </div>
                 </div>
             `;
-            chatContainer.appendChild(typingDiv);
+            messagesList.appendChild(typingDiv);
             scrollToBottom();
 
             try {
-                // Call API
                 const aiResponse = await getAIResponse(text);
-
-                // Process Links
                 const extracted = extractLinks(aiResponse);
 
                 typingDiv.remove();
@@ -456,44 +573,32 @@
 
             } catch (e) {
                 typingDiv.remove();
-                addMessage("⚠️ System Error: " + e.message, false);
+                addMessage("⚠️ Error: " + e.message, false);
             } finally {
                 isProcessing = false;
             }
         }
 
-        // --- API LOGIC ---
         async function getAIResponse(question) {
-            // We don't push to history here manually because the backend might want to handle it, 
-            // but for this stateless backend implementation, we'll keep sending history.
-            // Client-side history management:
             conversationHistory.push({ role: "user", content: question });
 
-            // Prepare messages for the backend
+            // We send full conversation history for context
             const messagesToSend = conversationHistory.slice(-10);
 
             const response = await fetch(API_ENDPOINT, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    messages: messagesToSend
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: messagesToSend })
             });
 
             if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || "API Connect Failed");
+                throw new Error("Cannot connect to Assistant.");
             }
 
             const data = await response.json();
-            // The backend returns the full Anthropic response object or simplified?
-            // let's assume our server returns the anthropic response format: { content: [{ text: "..." }] }
-            // Let's check server.js implementation... 
-            // server.js sends: res.json(data) where data is from anthropic.
+            // Server returns { content: [{ text: "..." }] }
+            const text = data.content?.[0]?.text || "No response.";
 
-            const text = data.content?.[0]?.text || "No response text found.";
             conversationHistory.push({ role: "assistant", content: text });
             return text;
         }
@@ -501,20 +606,17 @@
         function extractLinks(text) {
             const linkMatches = text.match(/\[LINK:(\w+)\]/g) || [];
             const links = [];
-
             linkMatches.forEach(match => {
                 const key = match.match(/\[LINK:(\w+)\]/)[1];
-                if (resources[key]) {
-                    links.push(resources[key]);
-                }
+                if (resources[key]) links.push(resources[key]);
             });
-
             const cleanText = text.replace(/\[LINK:\w+\]/g, '');
             return { cleanText, links };
         }
 
         // --- HANDLERS ---
-        sendBtn.addEventListener('click', handleSend);
+        sendBtn.addEventListener('click', () => handleSend());
+        userInput.addEventListener('input', autoResize);
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
