@@ -156,7 +156,7 @@ app.post('/api/chat', async (req, res) => {
         res.status(500).json({ error: `Internal Error: ${error.message}` });
     }
 });
-});
+
 
 // Health Check Endpoint (Critical for HF Spaces)
 app.get('/', (req, res) => {
