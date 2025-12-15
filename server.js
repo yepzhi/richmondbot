@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
 require('dotenv').config();
 
 const app = express();
@@ -87,34 +87,32 @@ Cuando respondas:
 
 Mantén respuestas bajo 150 palabras. Responde en el mismo idioma de la pregunta.`;
 
-// Initialize Gemini Client
-// Note: Client expects GEMINI_API_KEY in env or passed to constructor.
-// Using getGenerativeModel with systemInstruction.
+// Initialize Anthropic Claude Client
+// Note: Client expects ANTHROPIC_API_KEY in env or passed to constructor.
 
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages, apiKey: clientApiKey } = req.body;
 
         // Prioritize server-side env key, allow client-side key for testing/demo if server key missing
-        const apiKey = process.env.GEMINI_API_KEY || clientApiKey;
+        const apiKey = process.env.ANTHROPIC_API_KEY || clientApiKey;
 
         if (!apiKey) {
-            console.error("❌ CRITICAL: GEMINI_API_KEY is missing from process.env!");
+            console.error("❌ CRITICAL: ANTHROPIC_API_KEY is missing from process.env!");
             console.log("Current Env Keys:", Object.keys(process.env));
             return res.status(500).json({ error: 'Server: Missing API Key' });
         } else {
             console.log(`✅ API Key detected (Length: ${apiKey.length}, Starts: ${apiKey.substring(0, 4)}...)`);
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: systemPrompt
+        const anthropic = new Anthropic({
+            apiKey: apiKey
         });
 
-        const history = (messages || []).slice(0, -1).map(msg => ({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
+        // Convert messages to Claude format
+        const claudeMessages = (messages || []).map(msg => ({
+            role: msg.role === 'assistant' ? 'assistant' : 'user',
+            content: msg.content
         }));
 
         const lastMessage = messages[messages.length - 1];
@@ -122,16 +120,16 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'Invalid message format: Last message must be from user' });
         }
 
-        const chat = model.startChat({
-            history: history,
-            generationConfig: {
-                maxOutputTokens: 1000,
-            },
+        // Call Claude API
+        const response = await anthropic.messages.create({
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 1000,
+            system: systemPrompt,
+            messages: claudeMessages
         });
 
-        const result = await chat.sendMessage(lastMessage.content);
-        const response = await result.response;
-        const text = response.text();
+        // Extract text from Claude response
+        const text = response.content[0].text;
 
         res.json({
             content: [{ text: text }]
@@ -145,11 +143,11 @@ app.post('/api/chat', async (req, res) => {
             console.error('API Response:', JSON.stringify(error.response, null, 2));
         }
 
-        // Check for specific Gemini/Google errors
-        if (error.message && error.message.includes('429')) {
+        // Check for specific Claude/Anthropic errors
+        if (error.status === 429) {
             return res.status(429).json({ error: 'Too Many Requests' });
         }
-        if (error.message && error.message.includes('503')) {
+        if (error.status === 503) {
             return res.status(503).json({ error: 'Service Unavailable' });
         }
 
