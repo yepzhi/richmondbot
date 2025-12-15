@@ -4,7 +4,14 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// HARDCODED PORT 7860 to absolutely ensure HF compatibility
+const PORT = 7860;
+
+// ... existing code ...
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ SERVER STARTED ON PORT ${PORT} (VERSION 2.0)`);
+});
 
 // Enable CORS
 app.use(cors());
@@ -148,6 +155,17 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Health Check Endpoint (Critical for HF Spaces)
+app.get('/', (req, res) => {
+    res.status(200).send('RichmondBot Backend is Active 🟢');
+});
+
+app.post('/api/chat', async (req, res) => {
+    // ... existing ... 
+}); // (Logic preserved, just ensuring placement before listen)
+
+// ... existing code ...
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT} at 0.0.0.0`);
 });
