@@ -9,9 +9,9 @@ const PORT = 7860;
 
 // ... existing code ...
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ SERVER STARTED ON PORT ${PORT} (VERSION 2.0)`);
-});
+
+// ... existing code ...
+
 
 // Enable CORS
 app.use(cors());
@@ -160,9 +160,8 @@ app.get('/', (req, res) => {
     res.status(200).send('RichmondBot Backend is Active 🟢');
 });
 
-app.post('/api/chat', async (req, res) => {
-    // ... existing ... 
-}); // (Logic preserved, just ensuring placement before listen)
+
+
 
 // ... existing code ...
 
