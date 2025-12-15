@@ -107,9 +107,35 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        // ... (rest of setup)
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: systemPrompt
+        });
 
-        // ... (rest of logic)
+        const history = (messages || []).slice(0, -1).map(msg => ({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        }));
+
+        const lastMessage = messages[messages.length - 1];
+        if (!lastMessage || lastMessage.role !== 'user') {
+            return res.status(400).json({ error: 'Invalid message format: Last message must be from user' });
+        }
+
+        const chat = model.startChat({
+            history: history,
+            generationConfig: {
+                maxOutputTokens: 1000,
+            },
+        });
+
+        const result = await chat.sendMessage(lastMessage.content);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({
+            content: [{ text: text }]
+        });
 
     } catch (error) {
         console.error('❌ SERVER ERROR DETAILS:', error);
