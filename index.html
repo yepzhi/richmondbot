@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Richmond Support AI</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --bot-bg: rgba(255, 255, 255, 0.05);
+            --user-bg: #667eea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a0a;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .chat-header {
+            padding: 16px 20px;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bot-avatar-large {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+        }
+
+        .header-text h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .header-text p {
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #2ed573;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Chat Area */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message.bot .message-content {
+            background: var(--bot-bg);
+            border: 1px solid var(--glass-border);
+            border-top-left-radius: 4px;
+            color: #e2e8f0;
+        }
+
+        .message.user .message-content {
+            background: var(--user-bg);
+            background: var(--primary-gradient);
+            border-top-right-radius: 4px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.2);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 16px;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            /* Prevents zoom on mobile */
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            min-height: 44px;
+            outline: none;
+            display: block;
+        }
+
+        #send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        #send-btn:active {
+            transform: scale(0.95);
+        }
+
+        #send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #333;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Links */
+        .resource-link {
+            display: inline-block;
+            margin-top: 8px;
+            margin-right: 6px;
+            padding: 6px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            color: #a8daff;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .resource-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            .chat-header {
+                padding: 12px 16px;
+            }
+
+            #chat-container {
+                padding: 16px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-header">
+        <div class="header-info">
+            <div class="bot-avatar-large">🤖</div>
+            <div class="header-text">
+                <h1>Richmond Support</h1>
+                <p><span class="status-dot"></span> Online • AI Assistant</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-container">
+        <!-- Welcome Message -->
+        <div class="message bot">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                Hi! I'm the Richmond AI assistant. How can I help you regarding Access Codes, Login, or Materials?
+            </div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="user-input" placeholder="Type a message..." rows="1"></textarea>
+        </div>
+        <button id="send-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const API_ENDPOINT = '/api/chat';
+
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        let isProcessing = false;
+
+        const conversationHistory = [];
+
+        const resources = {
+            registro: { title: "Register", url: "https://www.richmondlp.com/register" },
+            login: { title: "Login", url: "https://www.richmondlp.com" },
+            ayuda: { title: "Help Center", url: "https://rlp-ug.knowledgeowl.com/help" },
+            contacto: { title: "Contact Sales", url: "https://richmond.com.mx/contacto/" },
+            app: { title: "Download App", url: "https://richmondlp.com" },
+            productos: { title: "My Products", url: "https://richmondlp.com" }
+        };
+
+        // --- UI LOGIC ---
+
+        function autoResize() {
+            userInput.style.height = 'auto';
+            userInput.style.height = userInput.scrollHeight + 'px';
+        }
+        userInput.addEventListener('input', autoResize);
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addMessage(text, isUser, links = []) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = isUser ? '👤' : '🤖';
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+
+            // Format simple markdown-like bold
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Convert newlines
+            formattedText = formattedText.replace(/\n/g, '<br>');
+
+            content.innerHTML = formattedText;
+
+            if (links.length > 0) {
+                const linkContainer = document.createElement('div');
+                linkContainer.style.marginTop = '10px';
+                links.forEach(l => {
+                    const a = document.createElement('a');
+                    a.href = l.url;
+                    a.className = 'resource-link';
+                    a.target = '_blank';
+                    a.textContent = l.title + ' →';
+                    linkContainer.appendChild(a);
+                });
+                content.appendChild(linkContainer);
+            }
+
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(content);
+
+            if (isUser) {
+                // Swap order for user
+                msgDiv.innerHTML = '';
+                msgDiv.appendChild(content);
+                msgDiv.appendChild(avatar);
+            }
+
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text || isProcessing) return;
+
+            isProcessing = true;
+            addMessage(text, true);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            // Show Typing
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+
+            try {
+                // Call API
+                const aiResponse = await getAIResponse(text);
+
+                // Process Links
+                const extracted = extractLinks(aiResponse);
+
+                typingDiv.remove();
+                addMessage(extracted.cleanText, false, extracted.links);
+
+            } catch (e) {
+                typingDiv.remove();
+                addMessage("⚠️ System Error: " + e.message, false);
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        // --- API LOGIC ---
+        async function getAIResponse(question) {
+            // We don't push to history here manually because the backend might want to handle it, 
+            // but for this stateless backend implementation, we'll keep sending history.
+            // Client-side history management:
+            conversationHistory.push({ role: "user", content: question });
+
+            // Prepare messages for the backend
+            const messagesToSend = conversationHistory.slice(-10);
+
+            const response = await fetch(API_ENDPOINT, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    messages: messagesToSend
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || "API Connect Failed");
+            }
+
+            const data = await response.json();
+            // The backend returns the full Anthropic response object or simplified?
+            // let's assume our server returns the anthropic response format: { content: [{ text: "..." }] }
+            // Let's check server.js implementation... 
+            // server.js sends: res.json(data) where data is from anthropic.
+
+            const text = data.content?.[0]?.text || "No response text found.";
+            conversationHistory.push({ role: "assistant", content: text });
+            return text;
+        }
+
+        function extractLinks(text) {
+            const linkMatches = text.match(/\[LINK:(\w+)\]/g) || [];
+            const links = [];
+
+            linkMatches.forEach(match => {
+                const key = match.match(/\[LINK:(\w+)\]/)[1];
+                if (resources[key]) {
+                    links.push(resources[key]);
+                }
+            });
+
+            const cleanText = text.replace(/\[LINK:\w+\]/g, '');
+            return { cleanText, links };
+        }
+
+        // --- HANDLERS ---
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+    </script>
+</body>
+
+</html>
