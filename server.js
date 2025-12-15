@@ -1,171 +1,177 @@
 const express = require('express');
 const cors = require('cors');
-const Anthropic = require('@anthropic-ai/sdk');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
-// HARDCODED PORT 7860 to absolutely ensure HF compatibility
 const PORT = 7860;
 
-// ... existing code ...
-
-
-// ... existing code ...
-
-
-// Enable CORS
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from current directory
 app.use(express.static('.'));
 
-const systemPrompt = `Eres un asistente de soporte para Richmond Learning Platform (RLP). Debes responder en ESPAÑOL si la pregunta está en español, o en INGLÉS si está en inglés. Sé conciso, amable y útil.
+// Load Q&A databases
+let qaSpanish = [];
+let qaEnglish = [];
 
-INFORMACIÓN CLAVE SOBRE RICHMOND LEARNING PLATFORM:
+try {
+    qaSpanish = JSON.parse(fs.readFileSync(path.join(__dirname, 'qa-data', 'spanish.json'), 'utf8'));
+    qaEnglish = JSON.parse(fs.readFileSync(path.join(__dirname, 'qa-data', 'english.json'), 'utf8'));
+    console.log(`✅ Loaded ${qaSpanish.length} Spanish Q&A and ${qaEnglish.length} English Q&A`);
+} catch (error) {
+    console.error('❌ Error loading Q&A databases:', error.message);
+}
 
-1. CÓDIGOS DE ACCESO (Access Code/Token):
-- Es un código alfanumérico de 12-20 caracteres (ej: RP4E5F678923 o XX00-0X0X-00XX-0XX0)
-- Se encuentra en la portada interna del libro Richmond o en una tarjeta incluida
-- También puede venir en CD-ROM o por email si es producto digital
-- Se necesita para registrarse en richmondlp.com/register
-- Si un estudiante no encuentra su código, debe preguntar a su profesor
-- Los profesores obtienen códigos contactando a su representante Richmond local
+// Detect language
+function detectLanguage(text) {
+    const spanishWords = ['código', 'cómo', 'dónde', 'qué', 'cuál', 'mi', 'no', 'sí', 'ayuda', 'registro'];
+    const lowerText = text.toLowerCase();
+    const spanishMatches = spanishWords.filter(word => lowerText.includes(word)).length;
+    return spanishMatches > 0 ? 'es' : 'en';
+}
 
-2. REGISTRO Y ACCESO:
-- Registro en: www.richmondlp.com/register
-- Login en: www.richmondlp.com
-- Proceso: Ingresar Access Code → Llenar datos personales → Ingresar Class Code (opcional) → Confirmar email
-- Si no llega el email de confirmación: revisar spam o usar "Resend confirmation email"
-- Si olvidó contraseña: usar opción "Forgotten password" en el login
-- Algunos estudiantes pueden tener cuenta creada por su institución (verificar con profesor)
+// Calculate similarity score
+function calculateSimilarity(text, keywords) {
+    const lowerText = text.toLowerCase();
+    let score = 0;
 
-3. PROBLEMAS COMUNES DE ACCESO:
-- "Este código ya fue usado": El Access Code solo se puede usar una vez
-- "Este email ya existe": Ya hay una cuenta con ese correo, recuperar contraseña
-- "No puedo hacer clic en Submit": Verificar conexión a internet, actualizar navegador, o contactar soporte
-- Problemas de login: Verificar usuario/contraseña, limpiar caché del navegador
+    keywords.forEach(keyword => {
+        if (lowerText.includes(keyword.toLowerCase())) {
+            score += 1;
+        }
+    });
 
-4. TAREAS Y MATERIALES:
-- Las tareas aparecen en "My Assignments" o "My tasks"
-- Los materiales se ven en "Class Materials" o "My study materials"
-- Si no aparecen materiales: verificar que el producto esté activado en "My Products"
-- Si falta material: puede ser que la suscripción haya expirado o el profesor lo haya ocultado
-- Para agregar nuevo producto: ir a "My Products" → "Add Access Code"
+    return score;
+}
 
-5. VALIDEZ DE SUSCRIPCIÓN:
-- La duración depende del producto comprado
-- Verificar en "My Products" la fecha de expiración
-- Si expiró, necesita comprar nueva licencia
+// Find best Q&A match
+function findBestMatch(userMessage, language) {
+    const db = language === 'es' ? qaSpanish : qaEnglish;
+    let bestMatch = null;
+    let highestScore = 0;
 
-6. COMPRA DE LIBROS Y LICENCIAS:
-- Los libros físicos se compran en librerías locales (El Sótano, Gandhi, Mercado Libre, etc.)
-- Las licencias digitales se compran a través de:
-  * La institución educativa (verificar con profesor/administrador)
-  * Representante Richmond local en tu país
-  * Sitio web: richmond.com.mx (contactar oficina de ventas local)
-- Cada libro físico incluye un Access Code para la plataforma digital
+    for (const qa of db) {
+        const score = calculateSimilarity(userMessage, qa.keywords);
+        if (score > highestScore) {
+            highestScore = score;
+            bestMatch = qa;
+        }
+    }
 
-7. APP MÓVIL:
-- App: RLP+ (disponible en iOS y Android)
-- Descargar de App Store o Google Play
-- Usar mismo usuario/contraseña de la versión web
-- Permite descargar contenido para usar offline
+    // Return match only if score is good enough
+    return highestScore >= 1 ? bestMatch : null;
+}
 
-8. SOPORTE:
-- Centro de ayuda: rlp-ug.knowledgeowl.com/help
-- Contacto: a través de richmond.com.mx
-- También puede contactar a su profesor o administrador de la institución
+// Format links for response
+function formatLinks(links) {
+    if (!links || links.length === 0) return '';
+    return '\n\n📎 Enlaces útiles:\n' + links.map(link => `• ${link}`).join('\n');
+}
 
-Cuando respondas:
-- Si la pregunta es sobre código: menciona [LINK:registro] y [LINK:ayuda]
-- Si es sobre login/acceso: menciona [LINK:login] y [LINK:ayuda]
-- Si es sobre materiales: menciona [LINK:productos] y [LINK:ayuda]
-- Si es sobre compra: menciona [LINK:contacto]
-- Si necesita app: menciona [LINK:app]
-- Ofrece siempre contactar soporte si el problema persiste
+// Hugging Face API call
+async function queryHuggingFace(messages, apiKey) {
+    try {
+        const lastMessage = messages[messages.length - 1].content;
 
-Mantén respuestas bajo 150 palabras. Responde en el mismo idioma de la pregunta.`;
+        const response = await fetch(
+            'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+            {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    inputs: `You are a helpful support assistant for Richmond Learning Platform. Answer in the same language as the question. Be concise (max 150 words).\n\nUser: ${lastMessage}\nAssistant:`,
+                    parameters: {
+                        max_new_tokens: 300,
+                        temperature: 0.7,
+                        top_p: 0.95,
+                        return_full_text: false
+                    }
+                })
+            }
+        );
 
-// Initialize Anthropic Claude Client
-// Note: Client expects ANTHROPIC_API_KEY in env or passed to constructor.
+        if (!response.ok) {
+            throw new Error(`HF API error: ${response.status}`);
+        }
 
+        const result = await response.json();
+        return result[0]?.generated_text || null;
+    } catch (error) {
+        console.error('❌ Hugging Face API error:', error.message);
+        return null;
+    }
+}
+
+// Chat endpoint
 app.post('/api/chat', async (req, res) => {
     try {
-        const { messages, apiKey: clientApiKey } = req.body;
-
-        // Prioritize server-side env key, allow client-side key for testing/demo if server key missing
-        const apiKey = process.env.ANTHROPIC_API_KEY || clientApiKey;
-
-        if (!apiKey) {
-            console.error("❌ CRITICAL: ANTHROPIC_API_KEY is missing from process.env!");
-            console.log("Current Env Keys:", Object.keys(process.env));
-            return res.status(500).json({ error: 'Server: Missing API Key' });
-        } else {
-            console.log(`✅ API Key detected (Length: ${apiKey.length}, Starts: ${apiKey.substring(0, 4)}...)`);
-        }
-
-        const anthropic = new Anthropic({
-            apiKey: apiKey
-        });
-
-        // Convert messages to Claude format
-        const claudeMessages = (messages || []).map(msg => ({
-            role: msg.role === 'assistant' ? 'assistant' : 'user',
-            content: msg.content
-        }));
-
+        const { messages } = req.body;
         const lastMessage = messages[messages.length - 1];
+
         if (!lastMessage || lastMessage.role !== 'user') {
-            return res.status(400).json({ error: 'Invalid message format: Last message must be from user' });
+            return res.status(400).json({ error: 'Invalid message format' });
         }
 
-        // Call Claude API
-        const response = await anthropic.messages.create({
-            model: "claude-3-5-sonnet-20241022",
-            max_tokens: 1000,
-            system: systemPrompt,
-            messages: claudeMessages
-        });
+        const userMessage = lastMessage.content;
+        const language = detectLanguage(userMessage);
 
-        // Extract text from Claude response
-        const text = response.content[0].text;
+        console.log(`📝 User message (${language}): ${userMessage.substring(0, 50)}...`);
+
+        // Try offline Q&A first (faster)
+        const offlineMatch = findBestMatch(userMessage, language);
+
+        if (offlineMatch) {
+            console.log(`✅ Offline match found: ${offlineMatch.question}`);
+            const response = offlineMatch.answer + formatLinks(offlineMatch.links);
+            return res.json({
+                content: [{ text: response }],
+                source: 'offline'
+            });
+        }
+
+        // Try Hugging Face API if available
+        const hfApiKey = process.env.HF_API_KEY;
+
+        if (hfApiKey) {
+            console.log('🤖 Trying Hugging Face API...');
+            const hfResponse = await queryHuggingFace(messages, hfApiKey);
+
+            if (hfResponse) {
+                console.log('✅ HF API response received');
+                return res.json({
+                    content: [{ text: hfResponse }],
+                    source: 'huggingface'
+                });
+            }
+        }
+
+        // Fallback: generic response
+        console.log('⚠️ Using fallback response');
+        const fallbackMessage = language === 'es'
+            ? 'Lo siento, no encontré una respuesta específica. Por favor contacta a soporte en:\n\n📧 rlp-ug.knowledgeowl.com/help\n🌐 richmond.com.mx'
+            : 'Sorry, I couldn\'t find a specific answer. Please contact support at:\n\n📧 rlp-ug.knowledgeowl.com/help\n🌐 richmond.com.mx';
 
         res.json({
-            content: [{ text: text }]
+            content: [{ text: fallbackMessage }],
+            source: 'fallback'
         });
 
     } catch (error) {
-        console.error('❌ SERVER ERROR DETAILS:', error);
-
-        // Log the full text if available
-        if (error.response) {
-            console.error('API Response:', JSON.stringify(error.response, null, 2));
-        }
-
-        // Check for specific Claude/Anthropic errors
-        if (error.status === 429) {
-            return res.status(429).json({ error: 'Too Many Requests' });
-        }
-        if (error.status === 503) {
-            return res.status(503).json({ error: 'Service Unavailable' });
-        }
-
+        console.error('❌ Server error:', error);
         res.status(500).json({ error: `Internal Error: ${error.message}` });
     }
 });
 
-
-// Health Check Endpoint (Critical for HF Spaces)
+// Health check
 app.get('/', (req, res) => {
     res.status(200).send('RichmondBot Backend is Active 🟢');
 });
 
-
-
-
-// ... existing code ...
-
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT} at 0.0.0.0`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Q&A Database: ${qaSpanish.length} ES + ${qaEnglish.length} EN`);
 });

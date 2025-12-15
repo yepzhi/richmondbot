@@ -1,0 +1,148 @@
+[
+    {
+        "keywords": [
+            "código",
+            "access code",
+            "token",
+            "alfanumérico",
+            "encontrar código"
+        ],
+        "question": "¿Dónde encuentro mi código de acceso?",
+        "answer": "El código de acceso es un código alfanumérico de 12-20 caracteres (ej: RP4E5F678923). Lo encuentras en:\n• Portada interna del libro Richmond\n• Tarjeta incluida con el libro\n• CD-ROM o email si es producto digital\n\nSi no lo encuentras, pregunta a tu profesor.",
+        "links": [
+            "https://richmondlp.com/register",
+            "https://rlp-ug.knowledgeowl.com/help"
+        ],
+        "category": "registro"
+    },
+    {
+        "keywords": [
+            "registro",
+            "registrar",
+            "crear cuenta",
+            "sign up",
+            "nueva cuenta"
+        ],
+        "question": "¿Cómo me registro en la plataforma?",
+        "answer": "Para registrarte:\n1. Ve a www.richmondlp.com/register\n2. Ingresa tu Access Code\n3. Llena tus datos personales\n4. Ingresa Class Code (opcional)\n5. Confirma tu email\n\nSi no llega el email, revisa spam o usa 'Resend confirmation email'.",
+        "links": [
+            "https://richmondlp.com/register"
+        ],
+        "category": "registro"
+    },
+    {
+        "keywords": [
+            "login",
+            "entrar",
+            "acceder",
+            "iniciar sesión",
+            "contraseña"
+        ],
+        "question": "¿Cómo inicio sesión?",
+        "answer": "Inicia sesión en www.richmondlp.com con tu email y contraseña.\n\nSi olvidaste tu contraseña, usa la opción 'Forgotten password' en el login.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "acceso"
+    },
+    {
+        "keywords": [
+            "código usado",
+            "código ya usado",
+            "access code already used"
+        ],
+        "question": "Mi código dice que ya fue usado",
+        "answer": "El Access Code solo se puede usar UNA VEZ para crear una cuenta.\n\nSi ves este error:\n• Alguien ya usó ese código\n• Verifica que sea tu código correcto\n• Contacta a tu profesor para obtener un nuevo código",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help"
+        ],
+        "category": "registro"
+    },
+    {
+        "keywords": [
+            "email existe",
+            "correo existe",
+            "email already exists"
+        ],
+        "question": "Dice que mi email ya existe",
+        "answer": "Ya existe una cuenta con ese correo electrónico.\n\nSoluciones:\n• Usa 'Forgotten password' para recuperar tu contraseña\n• Usa otro email para registrarte\n• Contacta a soporte si crees que es un error",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "registro"
+    },
+    {
+        "keywords": [
+            "tareas",
+            "assignments",
+            "mis tareas",
+            "ver tareas"
+        ],
+        "question": "¿Dónde veo mis tareas?",
+        "answer": "Tus tareas aparecen en:\n• 'My Assignments' o\n• 'My tasks'\n\nSi no aparecen, verifica que el producto esté activado en 'My Products'.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "tareas"
+    },
+    {
+        "keywords": [
+            "materiales",
+            "materials",
+            "contenido",
+            "libros"
+        ],
+        "question": "¿Dónde están mis materiales?",
+        "answer": "Los materiales se encuentran en:\n• 'Class Materials' o\n• 'My study materials'\n\nSi no aparecen, verifica que el producto esté activado en 'My Products'.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "materiales"
+    },
+    {
+        "keywords": [
+            "app",
+            "aplicación",
+            "móvil",
+            "celular",
+            "descargar"
+        ],
+        "question": "¿Hay una aplicación móvil?",
+        "answer": "Sí, la app RLP+ está disponible para iOS y Android.\n\n• Descárgala de App Store o Google Play\n• Usa el mismo usuario/contraseña de la web\n• Permite descargar contenido para usar offline",
+        "links": [
+            "https://apps.apple.com/app/rlp/id1234567890",
+            "https://play.google.com/store/apps/details?id=com.richmond.rlp"
+        ],
+        "category": "app"
+    },
+    {
+        "keywords": [
+            "soporte",
+            "ayuda",
+            "contacto",
+            "support",
+            "help"
+        ],
+        "question": "¿Cómo contacto a soporte?",
+        "answer": "Puedes obtener ayuda en:\n• Centro de ayuda: rlp-ug.knowledgeowl.com/help\n• Contacto: a través de richmond.com.mx\n• Tu profesor o administrador de la institución",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://richmond.com.mx"
+        ],
+        "category": "soporte"
+    },
+    {
+        "keywords": [
+            "submit",
+            "no puedo enviar",
+            "botón submit",
+            "no funciona submit"
+        ],
+        "question": "No puedo hacer clic en Submit",
+        "answer": "Si el botón Submit no funciona:\n• Verifica tu conexión a internet\n• Actualiza tu navegador\n• Limpia caché y cookies\n• Intenta con otro navegador\n• Contacta a soporte si persiste",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help"
+        ],
+        "category": "soporte"
+    }
+]
