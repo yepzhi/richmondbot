@@ -592,7 +592,13 @@
             });
 
             if (!response.ok) {
-                throw new Error("Cannot connect to Assistant.");
+                if (response.status === 429) {
+                    throw new Error("⏳ I'm receiving too many messages right now. Please wait 1 minute and try again.");
+                }
+                if (response.status === 503) {
+                    throw new Error("🔧 The service is temporarily busy. Please try again in a moment.");
+                }
+                throw new Error("Cannot connect to Assistant. (Status: " + response.status + ")");
             }
 
             const data = await response.json();

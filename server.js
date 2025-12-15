@@ -135,6 +135,15 @@ app.post('/api/chat', async (req, res) => {
 
     } catch (error) {
         console.error('Server Error:', error);
+
+        // Check for specific Gemini/Google errors
+        if (error.message && error.message.includes('429')) {
+            return res.status(429).json({ error: 'Too Many Requests' });
+        }
+        if (error.message && error.message.includes('503')) {
+            return res.status(503).json({ error: 'Service Unavailable' });
+        }
+
         res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });
