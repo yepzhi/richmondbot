@@ -145,10 +145,10 @@ ${systemPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
 ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
 
     try {
-        console.log('🤖 Querying Hugging Face Inference API (Zephyr 7B)...');
-        // Switching to Zephyr-7b-beta, known for high availability on free tier
+        console.log('🤖 Querying Hugging Face Inference API (Phi-3)...');
+        // Using Phi-3 Mini, widely available on the Router
         const response = await fetch(
-            "https://router.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
+            "https://router.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct",
             {
                 headers: {
                     Authorization: `Bearer ${process.env.HF_API_KEY}`,
@@ -167,8 +167,9 @@ ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
         );
 
         if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HF API Error ${response.status}: ${err}`);
+            // Silently fail to fallback
+            console.warn(`⚠️ HF Router Model unavailable (${response.status}). defaulting to static help.`);
+            return null;
         }
 
         const result = await response.json();
@@ -183,7 +184,7 @@ ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
         return generatedText.trim();
 
     } catch (error) {
-        console.error('❌ HF Inference failed:', error.message);
+        console.warn('⚠️ AI Logic skipped:', error.message);
         return null;
     }
 }
@@ -220,7 +221,7 @@ app.post('/api/chat', async (req, res) => {
         const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
 
         if (apiKey) {
-            console.log('🤖 Trying AI (Hugging Face / Zephyr)...');
+            console.log('🤖 Trying AI (Hugging Face / Phi-3)...');
             const aiResponse = await queryHuggingFace(messages, apiKey, language);
 
             if (aiResponse) {
