@@ -117,46 +117,61 @@ function formatLinks(links) {
 }
 
 // Google Gemini API call
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function queryGemini(messages, apiKey, language = 'es') {
-    const genAI = new GoogleGenerativeAI(apiKey);
     const lastMessage = messages[messages.length - 1].content;
 
     // Load context
     const contextDB = language === 'es' ? qaSpanish : qaEnglish;
     const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
 
-    // Prompt construction
-    const prompt = `
+    const promptText = `
     Role: You are an expert Technical Support Agent for the "Richmond Learning Platform".
     Objective: Help students, teachers, and parents solve technical issues.
     Context: ${contextText}
     Instructions: Use context if possible. If not, give general advice. Be concise (<150 words). Answer in ${language === 'es' ? 'Spanish' : 'English'}. Use a friendly tone with emojis 🚀.
     User Query: ${lastMessage}`;
 
-    // List of models to try in order of preference
+    // Helper for fetch
+    async function callGeminiRest(modelName) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: promptText }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    // Models to try (REST API names)
     const modelCandidates = [
         "gemini-1.5-flash",
         "gemini-1.5-flash-latest",
-        "gemini-pro",
-        "gemini-1.0-pro"
+        "gemini-pro"
     ];
 
     for (const modelName of modelCandidates) {
         try {
-            console.log(`🤖 Attempting Gemini model: ${modelName}`);
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            return response.text();
+            console.log(`🤖 Attempting Gemini REST API: ${modelName}`);
+            return await callGeminiRest(modelName);
         } catch (error) {
-            console.warn(`⚠️ Model ${modelName} failed: ${error.message.split(':')[0]}`);
-            // Continue to next model
+            console.warn(`⚠️ Model ${modelName} REST failed: ${error.message}`);
         }
     }
 
-    console.error("❌ All Gemini models failed.");
+    console.error("❌ All Gemini REST models failed.");
     return null;
 }
 
