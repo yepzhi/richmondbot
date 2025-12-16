@@ -28,6 +28,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #0a0a0a;
+            /* Background gradient... */
             background-image:
                 radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
                 radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
@@ -36,8 +37,10 @@
             height: 100vh;
             /* Fallback */
             height: 100dvh;
-            /* Mobile fix */
+            /* Mobile viewport fix */
+            margin: 0;
             overflow: hidden;
+            /* Prevent body scroll, handle inside container */
             display: flex;
             flex-direction: column;
         }
@@ -181,8 +184,8 @@
             flex-direction: column;
             justify-content: center;
             min-height: 100%;
-            /* Take up full height of container */
-            padding: 40px 0;
+            padding: 60px 20px 100px 20px;
+            /* More padding top/bottom to prevent cutting */
         }
 
         /* Updated Welcome Container */
@@ -210,16 +213,17 @@
 
         /* Restored Large Logo */
         .bot-logo-large {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .bot-logo-large img {
