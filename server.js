@@ -238,24 +238,49 @@ async function queryOpenSource(messages, apiKey, language = 'es') {
     return null;
 }
 
-// Google Gemini API call (REST) with Chain Fallback
-async function queryGemini(messages, apiKey, language = 'es') {
+// Google Gemini API call (REST) with Chain Fallback + RAG + History
+async function queryGemini(messages, apiKey, language = 'es', relevantContext = null) {
     // If discovery hasn't finished or found nothing, fallback to hardcoded list
     const candidates = AVAILABLE_GEMINI_MODELS.length > 0
         ? AVAILABLE_GEMINI_MODELS
         : ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
 
-    const lastMessage = messages[messages.length - 1].content;
+    // Construct Contextual Prompt (RAG)
+    // 1. Base identity
+    let systemInstruction = `Role: Specialized Technical Support for "Richmond Learning Platform".
+    Tone: Professional, friendly, empathetic 🚀.
+    Language: ${language}.
+    Constraint: Concise answers (<150 words).`;
 
-    // Load context
-    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
-    const contextText = contextDB.slice(0, 20).map(qa => `${qa.category}: ${qa.answer}`).join('\n');
+    // 2. Add Database Knowledge (Dynamic RAG)
+    if (relevantContext) {
+        systemInstruction += `\n\nCRITICAL INFO FOUND IN DATABASE:
+        User's specific issue matches this official solution: "${relevantContext.answer}".
+        
+        INSTRUCTION: Use the above "Official Solution" to answer the user, but adapt it to the conversation flow. Do not just copy-paste if it feels robotic.`;
+    } else {
+        // Fallback context from top FAQs if no specific match
+        const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+        const generalContext = contextDB.slice(0, 10).map(qa => `${qa.category}: ${qa.answer}`).join(' | ');
+        systemInstruction += `\n\nGeneral Knowledge Base: ${generalContext}`;
+    }
 
-    const promptText = `
-    Role: Technical Support Agent for "Richmond Learning Platform".
-    Context provided: ${contextText}
-    Instructions: Answer based on context. Concise (<150 words). Language: ${language}. Friendly 🚀.
-    User Query: ${lastMessage}`;
+    // 3. Build Chat History for Prompt
+    // API v1beta uses 'contents' array with 'role': 'user'/'model'
+    const contents = messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+    }));
+
+    // Prepend System Instruction? Gemini v1beta usually prefers system instruction in the API field or first user message.
+    // Let's prepend it to the first message or use system_instruction field if using SDK.
+    // REST API supports 'systemInstruction' field in newer models, but purely prompting is safer for compatibility.
+    // We will inject it into the very first turn or as a separate system-like user prompt.
+    // Strategy: Add a "developer" role message first? No, Gemini supports 'user' and 'model'.
+    // Best practice for simple REST: Prepend to first user message.
+    if (contents.length > 0) {
+        contents[0].parts[0].text = `[SYSTEM INSTRUCTION: ${systemInstruction}]\n\n` + contents[0].parts[0].text;
+    }
 
     async function callRest(modelName) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -263,9 +288,7 @@ async function queryGemini(messages, apiKey, language = 'es') {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }]
-            })
+            body: JSON.stringify({ contents: contents })
         });
 
         if (!response.ok) {
@@ -278,7 +301,7 @@ async function queryGemini(messages, apiKey, language = 'es') {
         return data.candidates[0].content.parts[0].text;
     }
 
-    // Try models one by one until success
+    // Try models one by one
     for (const model of candidates) {
         try {
             console.log(`🤖 Trying Gemini Model: ${model}...`);
@@ -286,7 +309,7 @@ async function queryGemini(messages, apiKey, language = 'es') {
             console.log(`✅ Success with ${model}`);
             return ans;
         } catch (error) {
-            console.warn(`⚠️ Model ${model} failed: ${error.message.split('\n')[0]}`); // Log only first line of error
+            console.warn(`⚠️ Model ${model} failed: ${error.message.split('\n')[0]}`);
         }
     }
 
@@ -294,7 +317,7 @@ async function queryGemini(messages, apiKey, language = 'es') {
     return null;
 }
 
-// Chat endpoint
+// Chat endpoint (Refactored for RAG)
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages } = req.body;
@@ -305,31 +328,52 @@ app.post('/api/chat', async (req, res) => {
 
         console.log(`📝 User message (${language}): ${lastMessage.substring(0, 50)}...`);
 
-        // 1. Offline Match (Priority)
+        // 1. Check Offline Knowledge Base (RAG Source)
         const offlineMatch = findBestMatch(lastMessage, language);
+        let relevantKnowledge = null;
+
         if (offlineMatch) {
-            console.log(`✅ Offline match: ${offlineMatch.question}`);
-            const response = offlineMatch.answer + formatLinks(offlineMatch.links);
-            return res.json({ content: [{ text: response }], source: 'offline' });
+            console.log(`💡 RAG Context found: ${offlineMatch.question}`);
+            relevantKnowledge = offlineMatch;
         }
 
-        // 2. Try Gemini API (Robust Fallback Mode)
+        // 2. Call AI with Context (Primary Response)
         const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
 
         if (apiKey) {
-            const aiResponse = await queryGemini(messages, apiKey, language);
+            console.log('🤖 Invoking AI with RAG Context...');
+
+            // Call Gemini/AI with the offline context if found
+            const aiResponse = await queryGemini(messages, apiKey, language, relevantKnowledge);
 
             if (aiResponse) {
-                return res.json({ content: [{ text: aiResponse }], source: 'gemini' });
+                console.log('✅ AI response delivered');
+                // Append links if we had an offline match, just in case AI missed them 
+                // or we can let AI handle it. Better to append them structuredly.
+                const finalResponse = aiResponse;
+                // We send links as separate field ideally, but existing UI might expect text. 
+                // Let's just return text for now.
+
+                return res.json({ content: [{ text: finalResponse }], source: 'gemini' });
             }
+        } else {
+            console.log('❌ No API Key found.');
         }
 
-        // 3. Fallback
-        const fallback = language === 'es'
-            ? 'Lo siento, mis servidores de IA están momentáneamente saturados. Por favor intenta de nuevo.'
-            : 'Sorry, my AI servers are currently overloaded. Please try again in a moment.';
+        // 3. Fallback: If AI failed but we had an offline match, use it raw
+        if (offlineMatch) {
+            console.log('⚠️ AI Failed, using Offline Match raw.');
+            const response = offlineMatch.answer + formatLinks(offlineMatch.links);
+            return res.json({ content: [{ text: response }], source: 'offline-fallback' });
+        }
 
-        res.json({ content: [{ text: fallback }], source: 'fallback' });
+        // 4. Ultimate Fallback
+        console.log('⚠️ No AI and No Offline match.');
+        const fallbackMessage = language === 'es'
+            ? 'Lo siento, mis servidores están ocupados y no encontré información sobre eso. Por favor contacta a soporte en 📧 rlp-ug.knowledgeowl.com/help'
+            : 'Sorry, I usually know that, but my brain is tired. Please contact support at 📧 rlp-ug.knowledgeowl.com/help';
+
+        res.json({ content: [{ text: fallbackMessage }], source: 'fallback' });
 
     } catch (error) {
         console.error('❌ Server error:', error);
