@@ -875,30 +875,70 @@
             userInput.value = '';
             autoResize();
 
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot';
-            typingDiv.innerHTML = `
-                <div class="message-avatar">
-                    <div style="font-size: 24px;">🚀</div>
-                </div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-            `;
-            messagesList.appendChild(typingDiv);
-            scrollToBottom();
+            // Progress UI Logic for Token Check
+            const isTokenCheck = text.toLowerCase().includes('validar token') || text.toLowerCase().includes('check token');
+            let progressInterval;
+            let progressDiv;
+
+            if (isTokenCheck) {
+                progressDiv = document.createElement('div');
+                progressDiv.className = 'message bot typing-placeholder'; // Added class for removal
+                progressDiv.innerHTML = `
+                    <div class="message-avatar"><div style="font-size: 24px;">🚀</div></div>
+                    <div class="message-content">
+                        <div id="token-status">�️ Iniciando validación de seguridad... (0%)</div>
+                    </div>`;
+                messagesList.appendChild(progressDiv);
+                scrollToBottom();
+
+                const steps = [
+                    "🔐 Accediendo a panel administrativo... (25%)",
+                    "📡 Conectando con base de datos Richmond... (50%)",
+                    "🔍 Buscando tu código en registros... (75%)",
+                    "📄 Analizando resultados... (90%)",
+                    "✅ Finalizando reporte... (99%)"
+                ];
+                let stepIdx = 0;
+
+                progressInterval = setInterval(() => {
+                    if (stepIdx < steps.length) {
+                        const statusEl = document.getElementById('token-status');
+                        if (statusEl) statusEl.innerText = steps[stepIdx];
+                        stepIdx++;
+                    }
+                }, 3000); // Update every 3 seconds
+            }
+            else {
+                // Standard typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot typing-placeholder';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar"><div style="font-size: 24px;">🚀</div></div>
+                    <div class="message-content">
+                        <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+                    </div>`;
+                messagesList.appendChild(typingDiv);
+                scrollToBottom();
+            }
 
             try {
-                const aiResponse = await getAIResponse(text);
+                const aiResponse = await getAIResponse(text); // Keep original call
+
+                if (progressInterval) clearInterval(progressInterval);
+                // Remove progress/typing divs
+                const loadingDivs = document.querySelectorAll('.typing-placeholder');
+                loadingDivs.forEach(el => {
+                    el.remove();
+                });
+
                 const extracted = extractLinks(aiResponse);
-                typingDiv.remove();
                 addMessage(extracted.cleanText, false, extracted.links);
             } catch (e) {
-                typingDiv.remove();
+                if (progressInterval) clearInterval(progressInterval);
+                const loadingDivs = document.querySelectorAll('.typing-placeholder');
+                loadingDivs.forEach(el => {
+                    el.remove();
+                });
                 addMessage("⚠️ Error: " + e.message, false);
             } finally {
                 isProcessing = false;

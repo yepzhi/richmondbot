@@ -386,8 +386,13 @@ app.post('/api/chat', async (req, res) => {
 
                 } catch (err) {
                     console.error("Token Check Error:", err);
+                    const fallbackUrl = "https://huggingface.co/spaces/yepzhi/richmond-token-check"; // Adjust if needed
+                    const errorMsg = language === 'es'
+                        ? `⚠️ **No pude validar el token automáticamente.**\n\nHubo un problema con mi sistema interno. Por favor intenta validarlo manualmente en la herramienta dedicada:\n\n🔗 **[Ir a Richmond Token Checker](${fallbackUrl})**`
+                        : `⚠️ **Could not check token.**\n\nInternal error. Please try the dedicated tool:\n\n🔗 **[Go to Token Checker](${fallbackUrl})**`;
+
                     return res.json({
-                        content: [{ text: language === 'es' ? "⚠️ Error verificando el token. Intenta más tarde." : "⚠️ Error checking token." }],
+                        content: [{ text: errorMsg }],
                         source: 'token-error'
                     });
                 }
