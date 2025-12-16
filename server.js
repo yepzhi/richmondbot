@@ -122,7 +122,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 async function queryGemini(messages, apiKey, language = 'es') {
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use a stable model alias. Try 'gemini-1.5-flash-latest' or fallback to 'gemini-pro' if needed.
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         const lastMessage = messages[messages.length - 1].content;
 
