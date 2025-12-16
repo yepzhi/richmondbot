@@ -243,5 +243,142 @@
             "https://richmondlp.com"
         ],
         "category": "materials"
+    },
+    {
+        "keywords": [
+            "correct answer wrong",
+            "graded wrong",
+            "bad grade",
+            "marked wrong",
+            "error",
+            "unfair"
+        ],
+        "question": "Why is my correct answer marked wrong?",
+        "answer": "The platform is sensitive to details. Check for:\n• Extra spaces at start/end\n• Punctuation (periods, commas)\n• Case sensitivity (Capital letters)\n• Spelling errors\n\nTry using the 'Check Answers' button carefully.",
+        "links": [],
+        "category": "assignments"
+    },
+    {
+        "keywords": [
+            "notifications",
+            "new homework",
+            "alerts",
+            "bell",
+            "messages"
+        ],
+        "question": "Where do I see my notifications?",
+        "answer": "Click the Bell icon in the top header. You will see alerts for:\n• New assignments\n• Messages from teacher\n• Graded activities",
+        "links": [],
+        "category": "navigation"
+    },
+    {
+        "keywords": [
+            "parents app",
+            "add child",
+            "link student",
+            "parent",
+            "app for parents"
+        ],
+        "question": "How do I add a student in Parents App?",
+        "answer": "In the Richmond Parents App:\n1. Log in.\n2. Click 'Add Student'.\n3. Enter the Student's User ID (not the Access Code).\nYou can find the User ID in the student's profile on the web.",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help/richmond-parents-app"
+        ],
+        "category": "parents"
+    },
+    {
+        "keywords": [
+            "browser",
+            "chrome",
+            "safari",
+            "compatible",
+            "requirements",
+            "firefox"
+        ],
+        "question": "Which browser should I use?",
+        "answer": "RLP works best on modern browsers:\n• Google Chrome (Recommended)\n• Mozilla Firefox\n• Microsoft Edge\n• Safari\n\nAvoid Internet Explorer.",
+        "links": [],
+        "category": "technical"
+    },
+    {
+        "keywords": [
+            "pop-up",
+            "blocked",
+            "content not opening",
+            "book not opening",
+            "white page"
+        ],
+        "question": "My book or content is not opening",
+        "answer": "Your browser might be blocking pop-ups.\n• Look for a 'Pop-up blocked' icon in the address bar.\n• Click it and select 'Always allow pop-ups from this site'.\n• Reload the page.",
+        "links": [],
+        "category": "technical"
+    },
+    {
+        "keywords": [
+            "audio",
+            "sound",
+            "can't hear",
+            "no sound",
+            "volume"
+        ],
+        "question": "I can't hear the audio",
+        "answer": "If audio isn't playing:\n• Check your device volume.\n• Check if the tab is muted.\n• Verify browser permissions for sound.\n• Try a different browser.",
+        "links": [],
+        "category": "technical"
+    },
+    {
+        "keywords": [
+            "loading",
+            "slow",
+            "stuck",
+            "white screen",
+            "crash"
+        ],
+        "question": "The platform is slow or not loading",
+        "answer": "Try these steps:\n1. Clear your browser cache and cookies.\n2. Check your internet connection.\n3. Disable heavy extensions.\n4. Try Incognito/Private mode.",
+        "links": [],
+        "category": "technical"
+    },
+    {
+        "keywords": [
+            "grades",
+            "scores",
+            "marks",
+            "progress",
+            "results",
+            "markbook"
+        ],
+        "question": "Where can I see my grades?",
+        "answer": "Go to the 'Markbook' or 'My Scores' section.\nYou can filter by class or product to see your progress and detailed scores for each activity.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "assignments"
+    },
+    {
+        "keywords": [
+            "message teacher",
+            "contact teacher",
+            "send message",
+            "email teacher"
+        ],
+        "question": "How do I message my teacher?",
+        "answer": "Go to the 'Messages' icon (envelope).\n1. Click 'New Message'.\n2. Select your teacher from the recipient list.\n3. Write your message and send.",
+        "links": [],
+        "category": "communication"
+    },
+    {
+        "keywords": [
+            "username",
+            "forgot username",
+            "user id",
+            "forgot login"
+        ],
+        "question": "I forgot my username",
+        "answer": "You can use your registered email address to log in instead of your username.\nIf you don't remember either, ask your teacher to check their class list for your username.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "access"
     }
 ]

@@ -248,5 +248,143 @@
             "https://richmondlp.com"
         ],
         "category": "materiales"
+    },
+    {
+        "keywords": [
+            "respuesta incorrecta",
+            "mal calificada",
+            "calificación mal",
+            "error calificación",
+            "puntuación",
+            "injusto"
+        ],
+        "question": "¿Por qué mi respuesta correcta marca error?",
+        "answer": "La plataforma es sensible a los detalles. Revisa:\n• Espacios extra al inicio/final\n• Puntuación (puntos, comas)\n• Mayúsculas y minúsculas\n• Errores de ortografía\n\nIntenta usar el botón 'Check Answers' con cuidado.",
+        "links": [],
+        "category": "tareas"
+    },
+    {
+        "keywords": [
+            "notificaciones",
+            "tarea nueva",
+            "alertas",
+            "campana",
+            "mensajes"
+        ],
+        "question": "¿Dónde veo mis notificaciones?",
+        "answer": "Haz clic en el ícono de la Campana en la barra superior. Verás alertas de:\n• Nuevas tareas\n• Mensajes del profesor\n• Actividades calificadas",
+        "links": [],
+        "category": "navegación"
+    },
+    {
+        "keywords": [
+            "app padres",
+            "agregar hijo",
+            "vincular estudiante",
+            "richmond parents",
+            "padre"
+        ],
+        "question": "¿Cómo agrego un estudiante en la App de Padres?",
+        "answer": "En la Richmond Parents App:\n1. Inicia sesión.\n2. Clic en 'Add Student'.\n3. Ingresa el User ID del estudiante (NO el Access Code).\nEl User ID está en el perfil del estudiante en la web.",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help/richmond-parents-app"
+        ],
+        "category": "padres"
+    },
+    {
+        "keywords": [
+            "navegador",
+            "chrome",
+            "safari",
+            "compatible",
+            "requisitos",
+            "firefox"
+        ],
+        "question": "¿Qué navegador debo usar?",
+        "answer": "RLP funciona mejor en navegadores modernos:\n• Google Chrome (Recomendado)\n• Mozilla Firefox\n• Microsoft Edge\n• Safari\n\nEvita usar Internet Explorer.",
+        "links": [],
+        "category": "técnico"
+    },
+    {
+        "keywords": [
+            "pop-up",
+            "bloqueado",
+            "no abre",
+            "libro no abre",
+            "ventana emergente",
+            "pantalla blanca"
+        ],
+        "question": "Mi libro o contenido no abre",
+        "answer": "Tu navegador puede estar bloqueando ventanas emergentes (pop-ups).\n• Busca un ícono de 'Pop-up blocked' en la barra de direcciones.\n• Haz clic y selecciona 'Permitir siempre pop-ups de este sitio'.\n• Recarga la página.",
+        "links": [],
+        "category": "técnico"
+    },
+    {
+        "keywords": [
+            "audio",
+            "sonido",
+            "no se oye",
+            "sin sonido",
+            "volumen"
+        ],
+        "question": "No puedo escuchar el audio",
+        "answer": "Si el audio no se reproduce:\n• Revisa el volumen de tu dispositivo.\n• Revisa si la pestaña está silenciada.\n• Verifica permisos del navegador.\n• Intenta con otro navegador.",
+        "links": [],
+        "category": "técnico"
+    },
+    {
+        "keywords": [
+            "lento",
+            "no carga",
+            "trabado",
+            "pantalla blanca",
+            "loading"
+        ],
+        "question": "La plataforma está lenta o no carga",
+        "answer": "Intenta estos pasos:\n1. Borra caché y cookies de tu navegador.\n2. Revisa tu conexión a internet.\n3. Desactiva extensiones pesadas.\n4. Intenta en modo Incógnito/Privado.",
+        "links": [],
+        "category": "técnico"
+    },
+    {
+        "keywords": [
+            "calificaciones",
+            "notas",
+            "progreso",
+            "resultados",
+            "markbook",
+            "promedio"
+        ],
+        "question": "¿Dónde veo mis calificaciones?",
+        "answer": "Ve a la sección 'Markbook' o 'My Scores'.\nPuedes filtrar por clase o producto para ver tu progreso y puntajes detallados de cada actividad.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "tareas"
+    },
+    {
+        "keywords": [
+            "mensaje profesor",
+            "contactar maestro",
+            "enviar mensaje",
+            "escribir profesor"
+        ],
+        "question": "¿Cómo le envío mensaje a mi profesor?",
+        "answer": "Ve al ícono de 'Messages' (sobre).\n1. Clic en 'New Message'.\n2. Selecciona a tu profesor de la lista.\n3. Escribe tu mensaje y envía.",
+        "links": [],
+        "category": "comunicación"
+    },
+    {
+        "keywords": [
+            "usuario",
+            "olvidé usuario",
+            "user id",
+            "usuario olvidado"
+        ],
+        "question": "Olvidé mi nombre de usuario",
+        "answer": "Puedes usar tu correo registrado para iniciar sesión en lugar de tu usuario.\nSi no recuerdas ninguno, pídele a tu profesor que revise su lista de clase para darte tu usuario.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "acceso"
     }
 ]
