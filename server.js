@@ -133,8 +133,8 @@ async function queryGemini(messages, apiKey, language = 'es') {
     User Query: ${lastMessage}`;
 
     // Helper for fetch
-    async function callGeminiRest(modelName) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    async function callGeminiRest(modelName, apiVersion = 'v1beta') {
+        const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -148,7 +148,7 @@ async function queryGemini(messages, apiKey, language = 'es') {
 
         if (!response.ok) {
             const errText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errText}`);
+            throw new Error(`HTTP ${response.status} (${apiVersion}): ${errText}`);
         }
 
         const data = await response.json();
@@ -156,18 +156,29 @@ async function queryGemini(messages, apiKey, language = 'es') {
     }
 
     // Models to try (REST API names)
+    // We will try v1beta first, then v1 if needed for each model
     const modelCandidates = [
         "gemini-1.5-flash",
         "gemini-1.5-flash-latest",
+        "gemini-1.0-pro",
         "gemini-pro"
     ];
 
     for (const modelName of modelCandidates) {
+        // Try v1beta
         try {
-            console.log(`🤖 Attempting Gemini REST API: ${modelName}`);
-            return await callGeminiRest(modelName);
+            console.log(`🤖 Attempting Gemini REST API (v1beta): ${modelName}`);
+            return await callGeminiRest(modelName, 'v1beta');
         } catch (error) {
-            console.warn(`⚠️ Model ${modelName} REST failed: ${error.message}`);
+            console.warn(`⚠️ Model ${modelName} (v1beta) failed: ${error.message}`);
+        }
+
+        // Try v1 (stable)
+        try {
+            console.log(`🤖 Attempting Gemini REST API (v1): ${modelName}`);
+            return await callGeminiRest(modelName, 'v1');
+        } catch (error) {
+            console.warn(`⚠️ Model ${modelName} (v1) failed: ${error.message}`);
         }
     }
 
