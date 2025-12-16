@@ -119,19 +119,33 @@ function formatLinks(links) {
 // Google Gemini API call
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-async function queryGemini(messages, apiKey) {
+async function queryGemini(messages, apiKey, language = 'es') {
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const lastMessage = messages[messages.length - 1].content;
 
-        // Context prompt
-        const prompt = `You are a helpful support assistant for Richmond Learning Platform. 
-        Answer concisely (max 150 words).
-        If the user asks in Spanish, answer in Spanish.
-        If the user asks in English, answer in English.
+        // Load context based on language
+        const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+        const contextText = JSON.stringify(contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30)); // Limit context to avoid token limits if database grows huge
+
+        // Enhanced Context Prompt
+        const prompt = `
+        Role: You are an expert Technical Support Agent for the "Richmond Learning Platform".
+        Objective: Help students, teachers, and parents solve technical issues, access content, and navigate the platform.
         
+        Context (Official Knowledge Base):
+        ${contextText}
+
+        Instructions:
+        1. Use the provided Context to answer the user's question accurately.
+        2. If the answer is in the Context, rephrase it kindly and clearly.
+        3. If the answer is NOT in the Context, provide general technical troubleshooting advice (clear cache, try another browser), but admit you don't have specific details.
+        4. Be empathetic, patient, and professional.
+        5. Answer in the same language as the User Query (${language === 'es' ? 'Spanish' : 'English'}).
+        6. Keep responses concise (under 150 words) but helpful. Use emojis occasionally (🚀, 📚).
+
         User Query: ${lastMessage}`;
 
         const result = await model.generateContent(prompt);
@@ -176,7 +190,7 @@ app.post('/api/chat', async (req, res) => {
 
         if (apiKey) {
             console.log('🤖 Trying Gemini AI...');
-            const aiResponse = await queryGemini(messages, apiKey);
+            const aiResponse = await queryGemini(messages, apiKey, language);
 
             if (aiResponse) {
                 console.log('✅ Gemini response received');
