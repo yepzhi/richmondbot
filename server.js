@@ -120,42 +120,44 @@ function formatLinks(links) {
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function queryGemini(messages, apiKey, language = 'es') {
-    try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        // Using 'gemini-pro' as it is the most stable alias for v1beta API currently
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const lastMessage = messages[messages.length - 1].content;
 
-        const lastMessage = messages[messages.length - 1].content;
+    // Load context
+    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+    const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
 
-        // Load context based on language
-        const contextDB = language === 'es' ? qaSpanish : qaEnglish;
-        const contextText = JSON.stringify(contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30)); // Limit context to avoid token limits if database grows huge
+    // Prompt construction
+    const prompt = `
+    Role: You are an expert Technical Support Agent for the "Richmond Learning Platform".
+    Objective: Help students, teachers, and parents solve technical issues.
+    Context: ${contextText}
+    Instructions: Use context if possible. If not, give general advice. Be concise (<150 words). Answer in ${language === 'es' ? 'Spanish' : 'English'}. Use a friendly tone with emojis 🚀.
+    User Query: ${lastMessage}`;
 
-        // Enhanced Context Prompt
-        const prompt = `
-        Role: You are an expert Technical Support Agent for the "Richmond Learning Platform".
-        Objective: Help students, teachers, and parents solve technical issues, access content, and navigate the platform.
-        
-        Context (Official Knowledge Base):
-        ${contextText}
+    // List of models to try in order of preference
+    const modelCandidates = [
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-pro",
+        "gemini-1.0-pro"
+    ];
 
-        Instructions:
-        1. Use the provided Context to answer the user's question accurately.
-        2. If the answer is in the Context, rephrase it kindly and clearly.
-        3. If the answer is NOT in the Context, provide general technical troubleshooting advice (clear cache, try another browser), but admit you don't have specific details.
-        4. Be empathetic, patient, and professional.
-        5. Answer in the same language as the User Query (${language === 'es' ? 'Spanish' : 'English'}).
-        6. Keep responses concise (under 150 words) but helpful. Use emojis occasionally (🚀, 📚).
-
-        User Query: ${lastMessage}`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
-    } catch (error) {
-        console.error('❌ Gemini API error:', error.message);
-        return null; // Force fallback
+    for (const modelName of modelCandidates) {
+        try {
+            console.log(`🤖 Attempting Gemini model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.warn(`⚠️ Model ${modelName} failed: ${error.message.split(':')[0]}`);
+            // Continue to next model
+        }
     }
+
+    console.error("❌ All Gemini models failed.");
+    return null;
 }
 
 // Chat endpoint
