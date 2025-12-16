@@ -138,6 +138,8 @@ app.post('/api/chat', async (req, res) => {
                     source: 'gemini'
                 });
             }
+        } else {
+            console.log('❌ No API Key found (GEMINI_API_KEY or HF_API_KEY is missing/empty)');
         }
 
         // Fallback: generic response

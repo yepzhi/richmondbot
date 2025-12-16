@@ -5,7 +5,10 @@
             "access code",
             "token",
             "alfanumérico",
-            "encontrar código"
+            "encontrar código",
+            "hola",
+            "buenos días",
+            "buenas tardes"
         ],
         "question": "¿Dónde encuentro mi código de acceso?",
         "answer": "El código de acceso es un código alfanumérico de 12-20 caracteres (ej: RP4E5F678923). Lo encuentras en:\n• Portada interna del libro Richmond\n• Tarjeta incluida con el libro\n• CD-ROM o email si es producto digital\n\nSi no lo encuentras, pregunta a tu profesor.",
