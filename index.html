@@ -836,33 +836,9 @@
             }, 600);
         }
 
-        function askForToken() {
-            let token = prompt("Por favor, ingresa el Access Code o Token que quieres validar:");
-            if (!token) return;
-
-            token = token.trim().toUpperCase();
-
-            // Validation 1: Length check (Class Code vs Access Code)
-            // Class codes are usually 6-8 chars. Access codes are 12+.
-            if (token.length < 12) {
-                if (token.length > 4) {
-                    alert("⚠️ Ese código parece ser un 'Código de Clase' (Class Code), no un Access Code de libro o licencia.\n\nPor favor valida tus datos y reintenta con el código de 12 o más caracteres.");
-                } else {
-                    alert("❌ El código ingresado está incompleto o es muy corto. Revisa el dato y reintenta.");
-                }
-                return;
-            }
-
-            // Validation 2: Format (Alphanumeric check)
-            // Allow hyphens just in case users type them
-            const cleanToken = token.replace(/-/g, '');
-            if (cleanToken.length < 12 || !/^[A-Z0-9]+$/.test(cleanToken)) {
-                alert("❌ El código ingresado parece estar erróneo o tener caracteres inválidos.\n\nRevisa el dato y reintenta.");
-                return;
-            }
-
-            // If valid, send to backend
-            handleSend(`Validar token ${token}`);
+        function openTokenChecker() {
+            // Open external tool
+            window.open("https://huggingface.co/spaces/yepzhi/richmond-token-check", "_blank");
         }
 
         async function handleSend(manualText = null) {
@@ -875,56 +851,21 @@
             userInput.value = '';
             autoResize();
 
-            // Progress UI Logic for Token Check
-            const isTokenCheck = text.toLowerCase().includes('validar token') || text.toLowerCase().includes('check token');
-            let progressInterval;
-            let progressDiv;
+            // Loading indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing-placeholder';
+            typingDiv.innerHTML = `
+                <div class="message-avatar"><div style="font-size: 24px;">🚀</div></div>
+                <div class="message-content">
+                    <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+                </div>`;
+            messagesList.appendChild(typingDiv);
+            scrollToBottom();
 
-            if (isTokenCheck) {
-                progressDiv = document.createElement('div');
-                progressDiv.className = 'message bot typing-placeholder'; // Added class for removal
-                progressDiv.innerHTML = `
-                    <div class="message-avatar"><div style="font-size: 24px;">🚀</div></div>
-                    <div class="message-content">
-                        <div id="token-status">�️ Iniciando validación de seguridad... (0%)</div>
-                    </div>`;
-                messagesList.appendChild(progressDiv);
-                scrollToBottom();
-
-                const steps = [
-                    "🔐 Accediendo a panel administrativo... (25%)",
-                    "📡 Conectando con base de datos Richmond... (50%)",
-                    "🔍 Buscando tu código en registros... (75%)",
-                    "📄 Analizando resultados... (90%)",
-                    "✅ Finalizando reporte... (99%)"
-                ];
-                let stepIdx = 0;
-
-                progressInterval = setInterval(() => {
-                    if (stepIdx < steps.length) {
-                        const statusEl = document.getElementById('token-status');
-                        if (statusEl) statusEl.innerText = steps[stepIdx];
-                        stepIdx++;
-                    }
-                }, 3000); // Update every 3 seconds
-            }
-            else {
-                // Standard typing indicator
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'message bot typing-placeholder';
-                typingDiv.innerHTML = `
-                    <div class="message-avatar"><div style="font-size: 24px;">🚀</div></div>
-                    <div class="message-content">
-                        <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
-                    </div>`;
-                messagesList.appendChild(typingDiv);
-                scrollToBottom();
-            }
 
             try {
                 const aiResponse = await getAIResponse(text); // Keep original call
 
-                if (progressInterval) clearInterval(progressInterval);
                 // Remove progress/typing divs
                 const loadingDivs = document.querySelectorAll('.typing-placeholder');
                 loadingDivs.forEach(el => {

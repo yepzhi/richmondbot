@@ -315,17 +315,14 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
         }
     }
 
+
     console.error("❌ All available Gemini models failed.");
     return null;
 }
 
-// Import Token Checker
-let tokenChecker;
-try {
-    tokenChecker = require('./token_checker');
-} catch (e) {
-    console.error('⚠️ Token Checker module not loaded (Deps missing?):', e.message);
-}
+// Token Checker Module Removed (External Tool Used)
+// const TokenChecker = require('./token_checker'); // Removed
+// const tokenChecker = new TokenChecker(); // Removed
 
 // Chat endpoint (Refactored for RAG + Token Check)
 app.post('/api/chat', async (req, res) => {
@@ -336,67 +333,20 @@ app.post('/api/chat', async (req, res) => {
         const lastMessage = messages[messages.length - 1].content;
         const language = detectLanguage(lastMessage);
 
-        console.log(`📝 User message (${language}): ${lastMessage.substring(0, 50)}...`);
+        console.log(`📝 User message(${language}): ${lastMessage.substring(0, 50)}...`);
 
         // 0. TOKEN CHECKER INTENT
         // "Validar token POTATO"
         const tokenIntentRegex = /validar|check|revisar|checar/i;
 
         if (tokenIntentRegex.test(lastMessage) && (lastMessage.includes('token') || lastMessage.includes('code') || lastMessage.includes('código'))) {
-            // Extract potential code (last word or alphanumeric sequence)
-            // Cleanup: remove "Validar token", etc.
-            const cleanMsg = lastMessage.replace(tokenIntentRegex, '').replace(/token|code|código/gi, '').trim().toUpperCase();
+            // Just return a static response pointing to external tool
+            const fallbackUrl = "https://huggingface.co/spaces/yepzhi/richmond-token-check";
+            const responseText = language === 'es'
+                ? `⚠️ ** Validación Automática Deshabilitada **\n\nPor seguridad, la validación de tokens se realiza en una herramienta dedicada.\n\n🔗 ** [Abrir Validador de Tokens](${fallbackUrl}) ** `
+                : `⚠️ ** Please use the dedicated tool **\n\nFor security reasons, token validation has been moved.\n\n🔗 ** [Open Token Checker](${fallbackUrl}) ** `;
 
-            // Check if what remains looks like a code
-            const potentialCode = cleanMsg.split(' ').pop(); // Take last word if multiple
-
-            // Validation Logic
-            if (potentialCode.length < 12) {
-                const isClassCode = potentialCode.length >= 5 && potentialCode.length < 12;
-
-                if (isClassCode) {
-                    return res.json({ content: [{ text: "⚠️ **Ese código parece ser un 'Código de Clase'**, no un código de libro o licencia.\n\nLos Access Codes tienen 12 o más caracteres (ej. RP...). Valida tus datos y reintenta." }], source: 'validation-error' });
-                } else if (potentialCode.length > 0) {
-                    return res.json({ content: [{ text: "❌ El código ingresado parece estar erróneo o incompleto.\n\nRevisa el dato y asegúrate de escribir el código completo (12+ caracteres)." }], source: 'validation-error' });
-                }
-                // If length is 0, user didn't type a code (just 'validar token'), fall through to AI to ask for it?
-                // Or strict reject. Let's fall through to AI so AI says "Claro, dame el código".
-            }
-            else if (tokenChecker && /^[A-Z0-9-]{12,30}$/.test(potentialCode)) {
-                // Valid Format -> Proceed with Check
-                const tokenCode = potentialCode.replace(/-/g, ''); // Remove hyphens for backend
-                console.log(`🕵️‍♂️ Token Check Started for: ${tokenCode}`);
-
-                try {
-                    const result = await tokenChecker.checkToken(tokenCode);
-
-                    let responseText = "";
-                    if (result.valid) {
-                        responseText = language === 'es' ? `✅ **Código Válido**\n\nDetalles:\n` : `✅ **Valid Code**\n\nDetails:\n`;
-                        for (const [key, val] of Object.entries(result.details)) {
-                            responseText += `• **${key}**: ${val}\n`;
-                        }
-                        responseText += language === 'es' ? "\nEste código ya fue usado." : "\nThis code has been used.";
-                    } else {
-                        responseText = language === 'es'
-                            ? `❌ **Código No Encontrado / Inválido**\n\nEl sistema no tiene registros de: ${tokenCode}.\nAsegúrate de escribirlo bien.`
-                            : `❌ **Invalid / Not Found**\n\nNo records found for: ${tokenCode}. Check for typos.`;
-                    }
-                    return res.json({ content: [{ text: responseText }], source: 'token-checker' });
-
-                } catch (err) {
-                    console.error("Token Check Error:", err);
-                    const fallbackUrl = "https://huggingface.co/spaces/yepzhi/richmond-token-check"; // Adjust if needed
-                    const errorMsg = language === 'es'
-                        ? `⚠️ **No pude validar el token automáticamente.**\n\nHubo un problema con mi sistema interno. Por favor intenta validarlo manualmente en la herramienta dedicada:\n\n🔗 **[Ir a Richmond Token Checker](${fallbackUrl})**`
-                        : `⚠️ **Could not check token.**\n\nInternal error. Please try the dedicated tool:\n\n🔗 **[Go to Token Checker](${fallbackUrl})**`;
-
-                    return res.json({
-                        content: [{ text: errorMsg }],
-                        source: 'token-error'
-                    });
-                }
-            }
+            return res.json({ content: [{ text: responseText }], source: 'token-link' });
         }
 
         // 1. Check Offline Knowledge Base (RAG Source)
@@ -404,7 +354,7 @@ app.post('/api/chat', async (req, res) => {
         let relevantKnowledge = null;
 
         if (offlineMatch) {
-            console.log(`💡 RAG Context found: ${offlineMatch.question}`);
+            console.log(`💡 RAG Context found: ${offlineMatch.question} `);
             relevantKnowledge = offlineMatch;
         }
 
@@ -453,6 +403,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Q&A Database: ${qaSpanish.length} ES + ${qaEnglish.length} EN`);
+    console.log(`🚀 Server running on port ${PORT} `);
+    console.log(`📊 Q & A Database: ${qaSpanish.length} ES + ${qaEnglish.length} EN`);
 });
