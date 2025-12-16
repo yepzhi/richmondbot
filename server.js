@@ -116,149 +116,43 @@ function formatLinks(links) {
     return '\n\n📎 Enlaces útiles:\n' + links.map(link => `• ${link}`).join('\n');
 }
 
-// Global variable to store the discovered working model
-let ACTIVE_GEMINI_MODEL = null;
-
-// Function to discover available Gemini models on startup
-async function discoverGeminiModel(apiKey) {
-    if (!apiKey) return;
-    try {
-        console.log('🔍 Discovering available Gemini models...');
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-        const data = await response.json();
-
-        if (!data.models) {
-            console.error('❌ No models found in discovery response:', data);
-            return;
-        }
-
-        // Find the first model that supports generateContent
-        const validModel = data.models.find(m =>
-            m.name.includes('gemini') &&
-            m.supportedGenerationMethods.includes('generateContent')
-        );
-
-        if (validModel) {
-            ACTIVE_GEMINI_MODEL = validModel.name.replace('models/', ''); // remove 'models/' prefix for API calls sometimes, or keep it depending on endpoint. REST usually wants just the name or models/name. Let's try to keep it clean.
-            // Actually v1beta/models/NAME:generateContent expects just NAME usually if name is simple, OR full resource name.
-            // Let's store the short name if possible, or full.
-            // API expects: https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent
-            // data.models names are like "models/gemini-pro". We need "gemini-pro".
-            ACTIVE_GEMINI_MODEL = validModel.name.split('/').pop();
-            console.log(`✅ Auto-discovered Gemini Model: ${ACTIVE_GEMINI_MODEL}`);
-        } else {
-            console.warn('⚠️ No suitable Gemini chat model found in user availability list.');
-        }
-    } catch (error) {
-        console.error('❌ Model discovery failed:', error.message);
-    }
-}
-
-// Call discovery on load if Key exists
-if (process.env.GEMINI_API_KEY) {
-    discoverGeminiModel(process.env.GEMINI_API_KEY);
-}
-
-// Google Gemini API call (REST)
-async function queryGemini(messages, apiKey, language = 'es') {
-    // If we haven't discovered a model yet (and we have a key), try one last hail mary or default
-    const modelToUse = ACTIVE_GEMINI_MODEL || 'gemini-pro';
-
+// Open Source AI (DeepSeek / Phi-3) via Hugging Face
+async function queryOpenSource(messages, apiKey, language = 'es') {
     const lastMessage = messages[messages.length - 1].content;
 
     // Load context
     const contextDB = language === 'es' ? qaSpanish : qaEnglish;
-    const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
 
-    const promptText = `
-    Role: Technical Support Agent for "Richmond Learning Platform".
-    Context: ${contextText}
-    Instructions: Answer based on context. Concise (<150 words). Language: ${language}. Friendly 🚀.
-    User Query: ${lastMessage}`;
+    // Simplificar contexto para modelos más pequeños (Top 15 Q&A)
+    const contextText = contextDB.slice(0, 15).map(qa => `- ${qa.category}: ${qa.answer}`).join('\n');
 
-    async function callRest(modelName) {
-        // Double check if we need models/ prefix. The URL is .../models/MODEL_NAME:generateContent
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }]
-            })
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    }
-
-    try {
-        console.log(`🤖 Querying Gemini REST with model: ${modelToUse}`);
-        return await callRest(modelToUse);
-    } catch (error) {
-        console.error(`❌ Gemini (${modelToUse}) failed: ${error.message}`);
-        // If auto-discovery failed or selected a bad one, fallback to hardcoded list
-        if (modelToUse === ACTIVE_GEMINI_MODEL) {
-            console.log('🔄 Retrying with fallback aliases...');
-            const fallbacks = ['gemini-1.5-flash', 'gemini-1.0-pro'];
-            for (const fb of fallbacks) {
-                try {
-                    return await callRest(fb);
-                } catch (e) { console.warn(`Fallback ${fb} failed.`); }
-            }
-        }
-        return null;
-    }
-}
-
-// Hugging Face Inference API call
-async function queryHuggingFace(messages, apiKey, language = 'es') {
-    const lastMessage = messages[messages.length - 1].content;
-
-    // Load context
-    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
-    const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
-
-    // System instruction
-    const systemPrompt = `You are a helpful Technical Support Agent for "Richmond Learning Platform".
-    Use the following CONTEXT to answer the user.
+    // Prompt optimizado para modelos Chat/Instruct (Formato ChatML o similar)
+    const systemInstruction = `You are a helpful Support Agent for "Richmond Learning Platform".
     CONTEXT:
     ${contextText}
     
     INSTRUCTIONS:
-    - Answer helpfuly and concisely (<150 words).
-    - If the answer is in context, use it.
-    - If not, give general troubleshooting advice.
+    - Answer user question based on CONTEXT.
+    - If answer not in context, give general friendly advice.
     - Answer in ${language === 'es' ? 'Spanish' : 'English'}.
-    - Be professional but friendly 🚀.`;
+    - Be concise and friendly 🚀.`;
 
-    // Llama 3 Prompt Format
-    const fullPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+    const fullPrompt = `<|system|>\n${systemInstruction}\n<|user|>\n${lastMessage}\n<|assistant|>\n`;
 
-${systemPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
-
-    try {
-        console.log('🤖 Querying Hugging Face Inference API (Phi-3)...');
-        // Using Phi-3 Mini, widely available on the Router
+    // Helper function for HF API
+    async function callHF(modelId) {
         const response = await fetch(
-            "https://router.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct",
+            `https://router.huggingface.co/models/${modelId}`,
             {
                 headers: {
-                    Authorization: `Bearer ${process.env.HF_API_KEY}`,
+                    Authorization: `Bearer ${apiKey}`,
                     "Content-Type": "application/json",
                 },
                 method: "POST",
                 body: JSON.stringify({
                     inputs: fullPrompt,
                     parameters: {
-                        max_new_tokens: 250,
+                        max_new_tokens: 300,
                         temperature: 0.7,
                         return_full_text: false
                     }
@@ -267,87 +161,80 @@ ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
         );
 
         if (!response.ok) {
-            // Silently fail to fallback
-            console.warn(`⚠️ HF Router Model unavailable (${response.status}). defaulting to static help.`);
-            return null;
+            throw new Error(`Status ${response.status}`);
         }
 
         const result = await response.json();
-        // HF returns array with generated_text inside
-        let generatedText = result[0].generated_text;
+        // HF returns array or object depending on pipeline
+        let text = Array.isArray(result) ? result[0].generated_text : result.generated_text;
 
-        // Cleanup if return_full_text didn't work as expected (sometimes happens)
-        if (generatedText.includes('<|start_header_id|>assistant<|end_header_id|>')) {
-            generatedText = generatedText.split('<|start_header_id|>assistant<|end_header_id|>')[1];
+        // Cleanup artifacts
+        if (text && text.includes('<|assistant|>')) {
+            text = text.split('<|assistant|>').pop();
         }
-
-        return generatedText.trim();
-
-    } catch (error) {
-        console.warn('⚠️ AI Logic skipped:', error.message);
-        return null;
+        return text ? text.trim() : null;
     }
+
+    // Try DeepSeek first, then Phi-3 (Fallback)
+    const models = [
+        'deepseek-ai/deepseek-coder-6.7b-instruct', // Good for tech support
+        'microsoft/Phi-3-mini-4k-instruct'         // Very reliable fallback
+    ];
+
+    for (const model of models) {
+        try {
+            console.log(`🤖 Trying AI Model: ${model}...`);
+            const ans = await callHF(model);
+            if (ans) return ans;
+        } catch (e) {
+            console.warn(`⚠️ Model ${model} failed: ${e.message}`);
+        }
+    }
+
+    return null;
 }
 
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages } = req.body;
-        const lastMessage = messages[messages.length - 1];
+        if (!messages || messages.length === 0) return res.status(400).json({ error: 'No messages' });
 
-        if (!lastMessage || lastMessage.role !== 'user') {
-            return res.status(400).json({ error: 'Invalid message format' });
-        }
+        const lastMessage = messages[messages.length - 1].content;
+        const language = detectLanguage(lastMessage);
 
-        const userMessage = lastMessage.content;
-        const language = detectLanguage(userMessage);
+        console.log(`📝 User message (${language}): ${lastMessage.substring(0, 50)}...`);
 
-        console.log(`📝 User message (${language}): ${userMessage.substring(0, 50)}...`);
-
-        // 1. Try offline Q&A first (faster & free-est)
-        const offlineMatch = findBestMatch(userMessage, language);
-
+        // 1. Offline Match (Priority)
+        const offlineMatch = findBestMatch(lastMessage, language);
         if (offlineMatch) {
-            console.log(`✅ Offline match found: ${offlineMatch.question}`);
+            console.log(`✅ Offline match: ${offlineMatch.question}`);
             const response = offlineMatch.answer + formatLinks(offlineMatch.links);
-            return res.json({
-                content: [{ text: response }],
-                source: 'offline'
-            });
+            return res.json({ content: [{ text: response }], source: 'offline' });
         }
 
-        // 2. Try Gemini API (Restored with Auto-Discovery)
-        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
+        // 2. Open Source AI (DeepSeek / Phi-3)
+        // Use HF_API_KEY primarily
+        const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
 
         if (apiKey) {
-            console.log('🤖 Trying Gemini AI (Auto-Discovery Mode)...');
-            const aiResponse = await queryGemini(messages, apiKey, language);
-
+            const aiResponse = await queryOpenSource(messages, apiKey, language);
             if (aiResponse) {
-                console.log('✅ Gemini response received');
-                return res.json({
-                    content: [{ text: aiResponse }],
-                    source: 'gemini'
-                });
+                console.log('✅ AI response received');
+                return res.json({ content: [{ text: aiResponse }], source: 'ai' });
             }
-        } else {
-            console.log('❌ No API Key found (GEMINI_API_KEY or HF_API_KEY is missing/empty)');
         }
 
-        // Fallback: generic response
-        console.log('⚠️ Using fallback response');
-        const fallbackMessage = language === 'es'
-            ? 'Lo siento, no encontré una respuesta específica. Por favor contacta a soporte en:\n\n📧 rlp-ug.knowledgeowl.com/help\n🌐 richmond.com.mx'
-            : 'Sorry, I couldn\'t find a specific answer. Please contact support at:\n\n📧 rlp-ug.knowledgeowl.com/help\n🌐 richmond.com.mx';
+        // 3. Fallback
+        const fallback = language === 'es'
+            ? "No tengo esa información ahora, pero puedes contactar a soporte en 📧 rlp-ug.knowledgeowl.com/help"
+            : "I don't have that info right now, please contact support at 📧 rlp-ug.knowledgeowl.com/help";
 
-        res.json({
-            content: [{ text: fallbackMessage }],
-            source: 'fallback'
-        });
+        res.json({ content: [{ text: fallback }], source: 'fallback' });
 
     } catch (error) {
         console.error('❌ Server error:', error);
-        res.status(500).json({ error: `Internal Error: ${error.message}` });
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
