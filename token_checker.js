@@ -90,19 +90,50 @@ async function initBrowser(retryCount = 0) {
         page = await context.newPage();
 
         console.log('📡 Logging in to Richmond...');
-        await page.goto(LOGIN_URL, { waitUntil: 'networkidle', timeout: 60000 });
+        try {
+            await page.goto(LOGIN_URL, { waitUntil: 'networkidle', timeout: 60000 });
+        } catch (e) {
+            console.error('⚠️ Timeout loading login page, retrying navigation...');
+            await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        }
 
         // Login Flow
-        await page.waitForSelector('#identifier', { timeout: 30000 });
-        await page.type('#identifier', USER, { delay: 50 });
-        await page.click('#password'); // Focus
-        await page.type('#password', PASS, { delay: 50 });
-        await page.click('button:has-text("Sign in")');
+        try {
+            await page.waitForSelector('#identifier', { timeout: 15000 });
+            console.log('   Entering user...');
+            await page.type('#identifier', USER, { delay: 100 });
 
-        await page.waitForLoadState('networkidle');
+            await page.click('#password');
+            console.log('   Entering password...');
+            await page.type('#password', PASS, { delay: 100 });
 
-        if (page.url().includes('login') || page.url().includes('error')) {
-            throw new Error('Login failed');
+            console.log('   Clicking Sign In...');
+            // Try multiple selectors for the button
+            const btn = await page.$('button[type="submit"]') || await page.$('button:has-text("Sign in")') || await page.$('#login-button');
+            if (btn) {
+                await btn.click();
+            } else {
+                await page.keyboard.press('Enter');
+            }
+
+            await page.waitForLoadState('networkidle');
+            await page.waitForTimeout(3000); // Wait for redirect
+
+        } catch (e) {
+            console.error('❌ Error interacting with login form:', e.message);
+        }
+
+        const currentUrl = page.url();
+        console.log(`📍 URL after/during login: ${currentUrl}`);
+
+        if (currentUrl.includes('login') || currentUrl.includes('error')) {
+            // Try to scrape error message
+            const errorMsg = await page.evaluate(() => {
+                const el = document.querySelector('.error') || document.querySelector('.alert') || document.body;
+                return el ? el.innerText.substring(0, 200) : 'No specific error found';
+            });
+            console.error(`❌ Login Logic Failed. Page says: ${errorMsg.replace(/\n/g, ' ')}`);
+            throw new Error(`Login failed - Stuck at ${currentUrl}`);
         }
 
         console.log('✅ Login successful. Validating Admin access...');
