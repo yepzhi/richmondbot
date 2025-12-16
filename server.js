@@ -116,74 +116,75 @@ function formatLinks(links) {
     return '\n\n📎 Enlaces útiles:\n' + links.map(link => `• ${link}`).join('\n');
 }
 
-// Google Gemini API call
-
-async function queryGemini(messages, apiKey, language = 'es') {
+// Hugging Face Inference API call
+async function queryHuggingFace(messages, apiKey, language = 'es') {
     const lastMessage = messages[messages.length - 1].content;
 
     // Load context
     const contextDB = language === 'es' ? qaSpanish : qaEnglish;
     const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
 
-    const promptText = `
-    Role: You are an expert Technical Support Agent for the "Richmond Learning Platform".
-    Objective: Help students, teachers, and parents solve technical issues.
-    Context: ${contextText}
-    Instructions: Use context if possible. If not, give general advice. Be concise (<150 words). Answer in ${language === 'es' ? 'Spanish' : 'English'}. Use a friendly tone with emojis 🚀.
-    User Query: ${lastMessage}`;
+    // System instruction
+    const systemPrompt = `You are a helpful Technical Support Agent for "Richmond Learning Platform".
+    Use the following CONTEXT to answer the user.
+    CONTEXT:
+    ${contextText}
+    
+    INSTRUCTIONS:
+    - Answer helpfuly and concisely (<150 words).
+    - If the answer is in context, use it.
+    - If not, give general troubleshooting advice.
+    - Answer in ${language === 'es' ? 'Spanish' : 'English'}.
+    - Be professional but friendly 🚀.`;
 
-    // Helper for fetch
-    async function callGeminiRest(modelName, apiVersion = 'v1beta') {
-        const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${apiKey}`;
+    // Llama 3 Prompt Format
+    const fullPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: promptText }]
-                }]
-            })
-        });
+${systemPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
+
+    try {
+        console.log('🤖 Querying Hugging Face Inference API (Llama 3)...');
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.HF_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({
+                    inputs: fullPrompt,
+                    parameters: {
+                        max_new_tokens: 250,
+                        temperature: 0.7,
+                        return_full_text: false
+                    }
+                }),
+            }
+        );
 
         if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`HTTP ${response.status} (${apiVersion}): ${errText}`);
+            const err = await response.text();
+            throw new Error(`HF API Error ${response.status}: ${err}`);
         }
 
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
+        const result = await response.json();
+        // HF returns array with generated_text inside
+        let generatedText = result[0].generated_text;
+
+        // Cleanup if return_full_text didn't work as expected (sometimes happens)
+        if (generatedText.includes('<|start_header_id|>assistant<|end_header_id|>')) {
+            generatedText = generatedText.split('<|start_header_id|>assistant<|end_header_id|>')[1];
+        }
+
+        return generatedText.trim();
+
+    } catch (error) {
+        console.error('❌ HF Inference failed:', error.message);
+        return null;
     }
-
-    // Models to try (REST API names)
-    // We will try v1beta first, then v1 if needed for each model
-    const modelCandidates = [
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-latest",
-        "gemini-1.0-pro",
-        "gemini-pro"
-    ];
-
-    for (const modelName of modelCandidates) {
-        // Try v1beta
-        try {
-            console.log(`🤖 Attempting Gemini REST API (v1beta): ${modelName}`);
-            return await callGeminiRest(modelName, 'v1beta');
-        } catch (error) {
-            console.warn(`⚠️ Model ${modelName} (v1beta) failed: ${error.message}`);
-        }
-
-        // Try v1 (stable)
-        try {
-            console.log(`🤖 Attempting Gemini REST API (v1): ${modelName}`);
-            return await callGeminiRest(modelName, 'v1');
-        } catch (error) {
-            console.warn(`⚠️ Model ${modelName} (v1) failed: ${error.message}`);
-        }
-    }
-
-    console.error("❌ All Gemini REST models failed.");
-    return null;
 }
 
 // Chat endpoint
@@ -213,19 +214,19 @@ app.post('/api/chat', async (req, res) => {
             });
         }
 
-        // 2. Try Gemini API
-        // Checks for GEMINI_API_KEY first, then fallbacks to HF_API_KEY (in case user reused the var)
-        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
+        // 2. Try Hugging Face Inference API (Fallback from broken Gemini)
+        // Check for HF_API_KEY as primary now
+        const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
 
         if (apiKey) {
-            console.log('🤖 Trying Gemini AI...');
-            const aiResponse = await queryGemini(messages, apiKey, language);
+            console.log('🤖 Trying AI (Hugging Face / Llama 3)...');
+            const aiResponse = await queryHuggingFace(messages, apiKey, language);
 
             if (aiResponse) {
-                console.log('✅ Gemini response received');
+                console.log('✅ AI response received');
                 return res.json({
                     content: [{ text: aiResponse }],
-                    source: 'gemini'
+                    source: 'ai'
                 });
             }
         } else {
