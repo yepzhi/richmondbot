@@ -146,8 +146,9 @@ ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
 
     try {
         console.log('🤖 Querying Hugging Face Inference API (Llama 3)...');
+        // Updated endpoint to new router URL
         const response = await fetch(
-            "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+            "https://router.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
             {
                 headers: {
                     Authorization: `Bearer ${process.env.HF_API_KEY}`,
