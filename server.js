@@ -69,40 +69,30 @@ function formatLinks(links) {
     return '\n\n📎 Enlaces útiles:\n' + links.map(link => `• ${link}`).join('\n');
 }
 
-// Hugging Face API call
-async function queryHuggingFace(messages, apiKey) {
+// Google Gemini API call
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+async function queryGemini(messages, apiKey) {
     try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         const lastMessage = messages[messages.length - 1].content;
 
-        const response = await fetch(
-            'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
-            {
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                    inputs: `You are a helpful support assistant for Richmond Learning Platform. Answer in the same language as the question. Be concise (max 150 words).\n\nUser: ${lastMessage}\nAssistant:`,
-                    parameters: {
-                        max_new_tokens: 300,
-                        temperature: 0.7,
-                        top_p: 0.95,
-                        return_full_text: false
-                    }
-                })
-            }
-        );
+        // Context prompt
+        const prompt = `You are a helpful support assistant for Richmond Learning Platform. 
+        Answer concisely (max 150 words).
+        If the user asks in Spanish, answer in Spanish.
+        If the user asks in English, answer in English.
+        
+        User Query: ${lastMessage}`;
 
-        if (!response.ok) {
-            throw new Error(`HF API error: ${response.status}`);
-        }
-
-        const result = await response.json();
-        return result[0]?.generated_text || null;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
     } catch (error) {
-        console.error('❌ Hugging Face API error:', error.message);
-        return null;
+        console.error('❌ Gemini API error:', error.message);
+        return null; // Force fallback
     }
 }
 
@@ -121,7 +111,7 @@ app.post('/api/chat', async (req, res) => {
 
         console.log(`📝 User message (${language}): ${userMessage.substring(0, 50)}...`);
 
-        // Try offline Q&A first (faster)
+        // 1. Try offline Q&A first (faster & free-est)
         const offlineMatch = findBestMatch(userMessage, language);
 
         if (offlineMatch) {
@@ -133,18 +123,19 @@ app.post('/api/chat', async (req, res) => {
             });
         }
 
-        // Try Hugging Face API if available
-        const hfApiKey = process.env.HF_API_KEY;
+        // 2. Try Gemini API
+        // Checks for GEMINI_API_KEY first, then fallbacks to HF_API_KEY (in case user reused the var)
+        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
 
-        if (hfApiKey) {
-            console.log('🤖 Trying Hugging Face API...');
-            const hfResponse = await queryHuggingFace(messages, hfApiKey);
+        if (apiKey) {
+            console.log('🤖 Trying Gemini AI...');
+            const aiResponse = await queryGemini(messages, apiKey);
 
-            if (hfResponse) {
-                console.log('✅ HF API response received');
+            if (aiResponse) {
+                console.log('✅ Gemini response received');
                 return res.json({
-                    content: [{ text: hfResponse }],
-                    source: 'huggingface'
+                    content: [{ text: aiResponse }],
+                    source: 'gemini'
                 });
             }
         }

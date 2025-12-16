@@ -23,9 +23,12 @@ Un chatbot de soporte inteligente para Richmond Learning Platform con sistema h�
 
 ### Variables de Entorno
 
-- `HF_API_KEY` (Opcional): Tu Hugging Face API Key para respuestas con IA
-  - Obtén una GRATIS en: https://huggingface.co/settings/tokens
-  - Sin API key, el bot usa solo Q&A offline
+### Variables de Entorno
+
+- `GEMINI_API_KEY` (Opcional): Tu Google Gemini API Key.
+  - Obtén una GRATIS en: https://aistudio.google.com/app/apikey (Google AI Studio)
+  - También compatible con variable `HF_API_KEY`.
+  - Sin API key, el bot usa solo Q&A offline.
 
 ### Instalación Local
 
