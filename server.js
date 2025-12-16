@@ -31,6 +31,50 @@ function detectLanguage(text) {
     return spanishMatches > 0 ? 'es' : 'en';
 }
 
+// Global list of discovered working models
+let AVAILABLE_GEMINI_MODELS = [];
+
+// Function to discover ALL available Gemini models on startup
+async function discoverGeminiModels(apiKey) {
+    if (!apiKey) return;
+    try {
+        console.log('🔍 Discovering available Gemini models...');
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        const data = await response.json();
+
+        if (!data.models) {
+            console.error('❌ No models found in discovery response:', data);
+            return;
+        }
+
+        // Filter valid models that support generateContent
+        // Prioritize 'flash' and 'pro' models, avoid 'vision' only models if possible
+        const validModels = data.models
+            .filter(m => m.name.includes('gemini') && m.supportedGenerationMethods.includes('generateContent'))
+            .map(m => m.name.split('/').pop()); // Store short names
+
+        if (validModels.length > 0) {
+            // Sort to prioritize stable models (heuristically)
+            AVAILABLE_GEMINI_MODELS = validModels.sort((a, b) => {
+                // Prefer 'flash' (fast), then 'pro'
+                if (a.includes('flash') && !b.includes('flash')) return -1;
+                if (b.includes('flash') && !a.includes('flash')) return 1;
+                return 0;
+            });
+            console.log(`✅ Auto-discovered Gemini Models: ${AVAILABLE_GEMINI_MODELS.join(', ')}`);
+        } else {
+            console.warn('⚠️ No suitable Gemini chat model found available for this Key.');
+        }
+    } catch (error) {
+        console.error('❌ Model discovery failed:', error.message);
+    }
+}
+
+// Call discovery on load if Key exists
+if (process.env.GEMINI_API_KEY) {
+    discoverGeminiModels(process.env.GEMINI_API_KEY);
+}
+
 // Calculate similarity score
 // Helper to normalize text (remove accents and casing)
 function normalizeText(text) {
@@ -194,6 +238,62 @@ async function queryOpenSource(messages, apiKey, language = 'es') {
     return null;
 }
 
+// Google Gemini API call (REST) with Chain Fallback
+async function queryGemini(messages, apiKey, language = 'es') {
+    // If discovery hasn't finished or found nothing, fallback to hardcoded list
+    const candidates = AVAILABLE_GEMINI_MODELS.length > 0
+        ? AVAILABLE_GEMINI_MODELS
+        : ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
+
+    const lastMessage = messages[messages.length - 1].content;
+
+    // Load context
+    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+    const contextText = contextDB.slice(0, 20).map(qa => `${qa.category}: ${qa.answer}`).join('\n');
+
+    const promptText = `
+    Role: Technical Support Agent for "Richmond Learning Platform".
+    Context provided: ${contextText}
+    Instructions: Answer based on context. Concise (<150 words). Language: ${language}. Friendly 🚀.
+    User Query: ${lastMessage}`;
+
+    async function callRest(modelName) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }]
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        if (!data.candidates || !data.candidates[0]) throw new Error('No candidates returned');
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    // Try models one by one until success
+    for (const model of candidates) {
+        try {
+            console.log(`🤖 Trying Gemini Model: ${model}...`);
+            const ans = await callRest(model);
+            console.log(`✅ Success with ${model}`);
+            return ans;
+        } catch (error) {
+            console.warn(`⚠️ Model ${model} failed: ${error.message.split('\n')[0]}`); // Log only first line of error
+        }
+    }
+
+    console.error("❌ All available Gemini models failed.");
+    return null;
+}
+
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
     try {
@@ -213,22 +313,21 @@ app.post('/api/chat', async (req, res) => {
             return res.json({ content: [{ text: response }], source: 'offline' });
         }
 
-        // 2. Open Source AI (DeepSeek / Phi-3)
-        // Use HF_API_KEY primarily
-        const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
+        // 2. Try Gemini API (Robust Fallback Mode)
+        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
 
         if (apiKey) {
-            const aiResponse = await queryOpenSource(messages, apiKey, language);
+            const aiResponse = await queryGemini(messages, apiKey, language);
+
             if (aiResponse) {
-                console.log('✅ AI response received');
-                return res.json({ content: [{ text: aiResponse }], source: 'ai' });
+                return res.json({ content: [{ text: aiResponse }], source: 'gemini' });
             }
         }
 
         // 3. Fallback
         const fallback = language === 'es'
-            ? "No tengo esa información ahora, pero puedes contactar a soporte en 📧 rlp-ug.knowledgeowl.com/help"
-            : "I don't have that info right now, please contact support at 📧 rlp-ug.knowledgeowl.com/help";
+            ? 'Lo siento, mis servidores de IA están momentáneamente saturados. Por favor intenta de nuevo.'
+            : 'Sorry, my AI servers are currently overloaded. Please try again in a moment.';
 
         res.json({ content: [{ text: fallback }], source: 'fallback' });
 
