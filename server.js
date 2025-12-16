@@ -246,11 +246,13 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
         : ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
 
     // Construct Contextual Prompt (RAG)
-    // 1. Base identity
-    let systemInstruction = `Role: Specialized Technical Support for "Richmond Learning Platform".
-    Tone: Professional, friendly, empathetic 🚀.
+    // 1. Base identity (Richmond Persona)
+    let systemInstruction = `Role: "Richmond Learning Platform Helper" (Educational Partner).
+    Personality: Warm, Encouraging, Patient, and Expert 🎓.
+    Tone: Conversational and human-like. Avoid being robotic. Use emojis naturally.
+    Objective: Guide the student/teacher to the solution while making them feel supported.
     Language: ${language}.
-    Constraint: Concise answers (<150 words).`;
+    Constraint: Keep answers concise but friendly (<150 words).`;
 
     // 2. Add Database Knowledge (Dynamic RAG)
     if (relevantContext) {
@@ -317,7 +319,15 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     return null;
 }
 
-// Chat endpoint (Refactored for RAG)
+// Import Token Checker
+let tokenChecker;
+try {
+    tokenChecker = require('./token_checker');
+} catch (e) {
+    console.error('⚠️ Token Checker module not loaded (Deps missing?):', e.message);
+}
+
+// Chat endpoint (Refactored for RAG + Token Check)
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages } = req.body;
@@ -327,6 +337,50 @@ app.post('/api/chat', async (req, res) => {
         const language = detectLanguage(lastMessage);
 
         console.log(`📝 User message (${language}): ${lastMessage.substring(0, 50)}...`);
+
+        // 0. TOKEN CHECKER INTENT
+        // Detect patterns like "Validar token ABCD", "Check code XYZ", or just a code if context implies
+        const tokenRegex = /\b([A-Z0-9]{12,20})\b/i;
+        const checkKeywords = /validar|check|revisar|checar|verificar|status|estado/i;
+
+        const tokenMatch = lastMessage.match(tokenRegex);
+
+        if (tokenMatch && checkKeywords.test(lastMessage) && tokenChecker) {
+            const tokenCode = tokenMatch[1].toUpperCase();
+            console.log(`🕵️‍♂️ Token Check Warning: User wants to check ${tokenCode}`);
+
+            // Inform user we are checking (Simulated by blocking wait? No, we return result)
+            // Ideally we stream, but simple JSON response waits.
+            try {
+                const result = await tokenChecker.checkToken(tokenCode);
+
+                let responseText = "";
+                if (result.valid) {
+                    responseText = language === 'es'
+                        ? `✅ **Código Válido**\n\nDetalles:\n`
+                        : `✅ **Valid Code**\n\nDetails:\n`;
+
+                    // Format details details
+                    for (const [key, val] of Object.entries(result.details)) {
+                        responseText += `• **${key}**: ${val}\n`;
+                    }
+                    responseText += language === 'es' ? "\nEste código ya fue usado." : "\nThis code has been used.";
+                } else {
+                    responseText = language === 'es'
+                        ? `❌ **Código No Encontrado / Inválido**\n\nEl sistema no tiene registros de: ${tokenCode}.\nAsegúrate de escribirlo bien.`
+                        : `❌ **Invalid / Not Found**\n\nNo records found for: ${tokenCode}. Check for typos.`;
+                }
+
+                return res.json({ content: [{ text: responseText }], source: 'token-checker' });
+
+            } catch (err) {
+                console.error("Token Check Error:", err);
+                return res.json({
+                    content: [{ text: language === 'es' ? "⚠️ Error verificando el token. Intenta más tarde." : "⚠️ Error checking token." }],
+                    source: 'token-error'
+                });
+            }
+        }
 
         // 1. Check Offline Knowledge Base (RAG Source)
         const offlineMatch = findBestMatch(lastMessage, language);
@@ -348,12 +402,7 @@ app.post('/api/chat', async (req, res) => {
 
             if (aiResponse) {
                 console.log('✅ AI response delivered');
-                // Append links if we had an offline match, just in case AI missed them 
-                // or we can let AI handle it. Better to append them structuredly.
                 const finalResponse = aiResponse;
-                // We send links as separate field ideally, but existing UI might expect text. 
-                // Let's just return text for now.
-
                 return res.json({ content: [{ text: finalResponse }], source: 'gemini' });
             }
         } else {
