@@ -145,10 +145,10 @@ ${systemPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
 ${lastMessage}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
 
     try {
-        console.log('🤖 Querying Hugging Face Inference API (Mistral 7B)...');
-        // Updated endpoint to new router URL with a non-gated model (Mistral)
+        console.log('🤖 Querying Hugging Face Inference API (Zephyr 7B)...');
+        // Switching to Zephyr-7b-beta, known for high availability on free tier
         const response = await fetch(
-            "https://router.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+            "https://router.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
             {
                 headers: {
                     Authorization: `Bearer ${process.env.HF_API_KEY}`,
@@ -220,7 +220,7 @@ app.post('/api/chat', async (req, res) => {
         const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
 
         if (apiKey) {
-            console.log('🤖 Trying AI (Hugging Face / Mistral)...');
+            console.log('🤖 Trying AI (Hugging Face / Zephyr)...');
             const aiResponse = await queryHuggingFace(messages, apiKey, language);
 
             if (aiResponse) {
