@@ -837,11 +837,32 @@
         }
 
         function askForToken() {
-            const token = prompt("Por favor, ingresa el Access Code o Token que quieres validar:");
-            if (token && token.trim().length > 5) {
-                // Send as a message so backend detects the intent
-                handleSend(`Validar token ${token.trim()}`);
+            let token = prompt("Por favor, ingresa el Access Code o Token que quieres validar:");
+            if (!token) return;
+
+            token = token.trim().toUpperCase();
+
+            // Validation 1: Length check (Class Code vs Access Code)
+            // Class codes are usually 6-8 chars. Access codes are 12+.
+            if (token.length < 12) {
+                if (token.length > 4) {
+                    alert("⚠️ Ese código parece ser un 'Código de Clase' (Class Code), no un Access Code de libro o licencia.\n\nPor favor valida tus datos y reintenta con el código de 12 o más caracteres.");
+                } else {
+                    alert("❌ El código ingresado está incompleto o es muy corto. Revisa el dato y reintenta.");
+                }
+                return;
             }
+
+            // Validation 2: Format (Alphanumeric check)
+            // Allow hyphens just in case users type them
+            const cleanToken = token.replace(/-/g, '');
+            if (cleanToken.length < 12 || !/^[A-Z0-9]+$/.test(cleanToken)) {
+                alert("❌ El código ingresado parece estar erróneo o tener caracteres inválidos.\n\nRevisa el dato y reintenta.");
+                return;
+            }
+
+            // If valid, send to backend
+            handleSend(`Validar token ${token}`);
         }
 
         async function handleSend(manualText = null) {

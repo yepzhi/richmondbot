@@ -339,46 +339,58 @@ app.post('/api/chat', async (req, res) => {
         console.log(`📝 User message (${language}): ${lastMessage.substring(0, 50)}...`);
 
         // 0. TOKEN CHECKER INTENT
-        // Detect patterns like "Validar token ABCD", "Check code XYZ", or just a code if context implies
-        const tokenRegex = /\b([A-Z0-9]{12,20})\b/i;
-        const checkKeywords = /validar|check|revisar|checar|verificar|status|estado/i;
+        // "Validar token POTATO"
+        const tokenIntentRegex = /validar|check|revisar|checar/i;
 
-        const tokenMatch = lastMessage.match(tokenRegex);
+        if (tokenIntentRegex.test(lastMessage) && (lastMessage.includes('token') || lastMessage.includes('code') || lastMessage.includes('código'))) {
+            // Extract potential code (last word or alphanumeric sequence)
+            // Cleanup: remove "Validar token", etc.
+            const cleanMsg = lastMessage.replace(tokenIntentRegex, '').replace(/token|code|código/gi, '').trim().toUpperCase();
 
-        if (tokenMatch && checkKeywords.test(lastMessage) && tokenChecker) {
-            const tokenCode = tokenMatch[1].toUpperCase();
-            console.log(`🕵️‍♂️ Token Check Warning: User wants to check ${tokenCode}`);
+            // Check if what remains looks like a code
+            const potentialCode = cleanMsg.split(' ').pop(); // Take last word if multiple
 
-            // Inform user we are checking (Simulated by blocking wait? No, we return result)
-            // Ideally we stream, but simple JSON response waits.
-            try {
-                const result = await tokenChecker.checkToken(tokenCode);
+            // Validation Logic
+            if (potentialCode.length < 12) {
+                const isClassCode = potentialCode.length >= 5 && potentialCode.length < 12;
 
-                let responseText = "";
-                if (result.valid) {
-                    responseText = language === 'es'
-                        ? `✅ **Código Válido**\n\nDetalles:\n`
-                        : `✅ **Valid Code**\n\nDetails:\n`;
-
-                    // Format details details
-                    for (const [key, val] of Object.entries(result.details)) {
-                        responseText += `• **${key}**: ${val}\n`;
-                    }
-                    responseText += language === 'es' ? "\nEste código ya fue usado." : "\nThis code has been used.";
-                } else {
-                    responseText = language === 'es'
-                        ? `❌ **Código No Encontrado / Inválido**\n\nEl sistema no tiene registros de: ${tokenCode}.\nAsegúrate de escribirlo bien.`
-                        : `❌ **Invalid / Not Found**\n\nNo records found for: ${tokenCode}. Check for typos.`;
+                if (isClassCode) {
+                    return res.json({ content: [{ text: "⚠️ **Ese código parece ser un 'Código de Clase'**, no un código de libro o licencia.\n\nLos Access Codes tienen 12 o más caracteres (ej. RP...). Valida tus datos y reintenta." }], source: 'validation-error' });
+                } else if (potentialCode.length > 0) {
+                    return res.json({ content: [{ text: "❌ El código ingresado parece estar erróneo o incompleto.\n\nRevisa el dato y asegúrate de escribir el código completo (12+ caracteres)." }], source: 'validation-error' });
                 }
+                // If length is 0, user didn't type a code (just 'validar token'), fall through to AI to ask for it?
+                // Or strict reject. Let's fall through to AI so AI says "Claro, dame el código".
+            }
+            else if (tokenChecker && /^[A-Z0-9-]{12,30}$/.test(potentialCode)) {
+                // Valid Format -> Proceed with Check
+                const tokenCode = potentialCode.replace(/-/g, ''); // Remove hyphens for backend
+                console.log(`🕵️‍♂️ Token Check Started for: ${tokenCode}`);
 
-                return res.json({ content: [{ text: responseText }], source: 'token-checker' });
+                try {
+                    const result = await tokenChecker.checkToken(tokenCode);
 
-            } catch (err) {
-                console.error("Token Check Error:", err);
-                return res.json({
-                    content: [{ text: language === 'es' ? "⚠️ Error verificando el token. Intenta más tarde." : "⚠️ Error checking token." }],
-                    source: 'token-error'
-                });
+                    let responseText = "";
+                    if (result.valid) {
+                        responseText = language === 'es' ? `✅ **Código Válido**\n\nDetalles:\n` : `✅ **Valid Code**\n\nDetails:\n`;
+                        for (const [key, val] of Object.entries(result.details)) {
+                            responseText += `• **${key}**: ${val}\n`;
+                        }
+                        responseText += language === 'es' ? "\nEste código ya fue usado." : "\nThis code has been used.";
+                    } else {
+                        responseText = language === 'es'
+                            ? `❌ **Código No Encontrado / Inválido**\n\nEl sistema no tiene registros de: ${tokenCode}.\nAsegúrate de escribirlo bien.`
+                            : `❌ **Invalid / Not Found**\n\nNo records found for: ${tokenCode}. Check for typos.`;
+                    }
+                    return res.json({ content: [{ text: responseText }], source: 'token-checker' });
+
+                } catch (err) {
+                    console.error("Token Check Error:", err);
+                    return res.json({
+                        content: [{ text: language === 'es' ? "⚠️ Error verificando el token. Intenta más tarde." : "⚠️ Error checking token." }],
+                        source: 'token-error'
+                    });
+                }
             }
         }
 
