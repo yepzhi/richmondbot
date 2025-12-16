@@ -5,7 +5,10 @@
             "access code",
             "token",
             "alphanumeric",
-            "find code"
+            "find code",
+            "hello",
+            "hi",
+            "good morning"
         ],
         "question": "Where can I find my access code?",
         "answer": "The access code is an alphanumeric code of 12-20 characters (e.g., RP4E5F678923). You can find it:\n• Inside cover of your Richmond book\n• Card included with the book\n• CD-ROM or email if digital product\n\nIf you can't find it, ask your teacher.",
@@ -139,5 +142,106 @@
             "https://rlp-ug.knowledgeowl.com/help"
         ],
         "category": "support"
+    },
+    {
+        "keywords": [
+            "activate product",
+            "new book",
+            "add product",
+            "add book",
+            "activation"
+        ],
+        "question": "How do I activate a new product?",
+        "answer": "To add a new product:\n1. Go to 'My Products' or the home screen.\n2. Look for the 'Add Product' button.\n3. Enter the 12-20 character Access Code from your new book.\n4. Click 'Add'.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "products"
+    },
+    {
+        "keywords": [
+            "join class",
+            "class code",
+            "enter class",
+            "add class",
+            "join"
+        ],
+        "question": "How do I join a class?",
+        "answer": "To join a class, you need a Class Code provided by your teacher.\n1. Look for the 'Join a Class' icon/button.\n2. Enter the Class Code.\n3. Confirm.\n\nNote: Class Codes are different from Access Codes.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "classes"
+    },
+    {
+        "keywords": [
+            "wrong data",
+            "change name",
+            "wrong name",
+            "edit profile",
+            "incorrect data"
+        ],
+        "question": "My personal data is wrong",
+        "answer": "You can edit some details in your Profile section.\nIf you cannot change a specific field (like username or locked data), please contact your teacher or institution administrator to fix it.",
+        "links": [
+            "https://richmondlp.com/profile"
+        ],
+        "category": "profile"
+    },
+    {
+        "keywords": [
+            "change email",
+            "wrong email",
+            "update email",
+            "new email"
+        ],
+        "question": "How can I change my email?",
+        "answer": "Changing your registered email is restricted for security. Please contact Richmond Support or your institution administrator to request an email change.",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help"
+        ],
+        "category": "profile"
+    },
+    {
+        "keywords": [
+            "wrong class",
+            "move class",
+            "incorrect class",
+            "change class"
+        ],
+        "question": "I am in the wrong class",
+        "answer": "Only your teacher can move you to the correct class.\nPlease ask your teacher to remove you from the wrong class and add you to the correct one, or provide the correct Class Code.",
+        "links": [],
+        "category": "classes"
+    },
+    {
+        "keywords": [
+            "subscription",
+            "validity",
+            "expire",
+            "how long",
+            "expiration"
+        ],
+        "question": "Until when is my subscription valid?",
+        "answer": "You can check your subscription expiration date in the 'My Products' section. Typically, access lasts for 12 months after activation, but this may vary by product.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "products"
+    },
+    {
+        "keywords": [
+            "study",
+            "self study",
+            "practice",
+            "own",
+            "self-study"
+        ],
+        "question": "How do I study on my own?",
+        "answer": "You can access self-study content in the 'My Study Materials' section. Here you will find extra practice, audios, and resources that do not require a teacher's assignment.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "materials"
     }
 ]

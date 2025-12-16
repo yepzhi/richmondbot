@@ -147,5 +147,106 @@
             "https://rlp-ug.knowledgeowl.com/help"
         ],
         "category": "soporte"
+    },
+    {
+        "keywords": [
+            "activar producto",
+            "nuevo libro",
+            "agregar producto",
+            "añadir libro",
+            "activación"
+        ],
+        "question": "¿Cómo activo un nuevo producto?",
+        "answer": "Para agregar un nuevo producto:\n1. Ve a 'My Products' o la pantalla de inicio.\n2. Busca el botón 'Add Product'.\n3. Ingresa el Access Code de 12-20 caracteres de tu nuevo libro.\n4. Haz clic en 'Add'.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "productos"
+    },
+    {
+        "keywords": [
+            "unirse a clase",
+            "código de clase",
+            "entrar a clase",
+            "class code",
+            "unirme"
+        ],
+        "question": "¿Cómo me uno a una clase?",
+        "answer": "Para unirte a una clase, necesitas un Class Code (código de clase) que te dará tu profesor.\n1. Busca el botón/ícono 'Join a Class'.\n2. Ingresa el Class Code.\n3. Confirma.\n\nNota: El Class Code es diferente a tu Access Code.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "clases"
+    },
+    {
+        "keywords": [
+            "datos incorrectos",
+            "cambiar nombre",
+            "nombre mal",
+            "editar perfil",
+            "mis datos"
+        ],
+        "question": "Mis datos personales están mal",
+        "answer": "Puedes editar algunos detalles en la sección de Perfil.\nSi no puedes cambiar un campo específico (como nombre de usuario o datos bloqueados), contacta a tu profesor o al administrador de tu escuela.",
+        "links": [
+            "https://richmondlp.com/profile"
+        ],
+        "category": "perfil"
+    },
+    {
+        "keywords": [
+            "cambiar email",
+            "correo incorrecto",
+            "actualizar correo",
+            "nuevo email"
+        ],
+        "question": "¿Cómo puedo cambiar mi email?",
+        "answer": "Cambiar tu correo registrado está restringido por seguridad. Por favor contacta a Soporte Richmond o al administrador de tu institución para solicitar el cambio.",
+        "links": [
+            "https://rlp-ug.knowledgeowl.com/help"
+        ],
+        "category": "perfil"
+    },
+    {
+        "keywords": [
+            "clase incorrecta",
+            "cambiar de clase",
+            "clase mal",
+            "me equivoqué de clase"
+        ],
+        "question": "Estoy en la clase incorrecta",
+        "answer": "Solo tu profesor puede moverte a la clase correcta.\nPídele a tu profesor que te elimine de la clase incorrecta y te agregue a la correcta, o que te dé el Class Code correcto.",
+        "links": [],
+        "category": "clases"
+    },
+    {
+        "keywords": [
+            "suscripción",
+            "validéz",
+            "vence",
+            "duración",
+            "caduca"
+        ],
+        "question": "¿Hasta cuándo es válida mi suscripción?",
+        "answer": "Puedes ver la fecha de expiración en la sección 'My Products'. Típicamente, el acceso dura 12 meses después de la activación, pero puede variar según el producto.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "productos"
+    },
+    {
+        "keywords": [
+            "estudiar solo",
+            "autoestudio",
+            "practicar",
+            "por mi cuenta",
+            "self study"
+        ],
+        "question": "¿Cómo estudio por mi cuenta?",
+        "answer": "Puedes acceder a contenido de autoestudio en la sección 'My Study Materials'. Ahí encontrarás práctica extra, audios y recursos que no requieren tarea del profesor.",
+        "links": [
+            "https://richmondlp.com"
+        ],
+        "category": "materiales"
     }
 ]
