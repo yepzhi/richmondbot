@@ -612,6 +612,10 @@
                             <span class="chip-icon">💳</span>
                             ¿Dónde compro mi libro ó licencia?
                         </button>
+                        <button class="chip-btn" onclick="askForToken()">
+                            <span class="chip-icon">🕵️</span>
+                            Check Token / Validar Código
+                        </button>
                     </div>
 
                     <div class="bilingual-note">
@@ -821,10 +825,23 @@
 
             setTimeout(() => {
                 typingDiv.remove();
-                const linkObjects = data.links.map(k => resources[k]);
-                addMessage(data.text, false, linkObjects);
+
+                if (data) {
+                    const linkObjects = data.links ? data.links.map(k => resources[k]) : [];
+                    addMessage(data.text, false, linkObjects);
+                } else {
+                    addMessage("Opción no disponible.", false);
+                }
                 isProcessing = false;
             }, 600);
+        }
+
+        function askForToken() {
+            const token = prompt("Por favor, ingresa el Access Code o Token que quieres validar:");
+            if (token && token.trim().length > 5) {
+                // Send as a message so backend detects the intent
+                handleSend(`Validar token ${token.trim()}`);
+            }
         }
 
         async function handleSend(manualText = null) {
