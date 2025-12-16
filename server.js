@@ -25,19 +25,25 @@ try {
 
 // Detect language
 function detectLanguage(text) {
-    const spanishWords = ['código', 'cómo', 'dónde', 'qué', 'cuál', 'mi', 'no', 'sí', 'ayuda', 'registro'];
+    const spanishWords = ['código', 'cómo', 'dónde', 'qué', 'cuál', 'mi', 'no', 'sí', 'ayuda', 'registro', 'hola', 'buenas'];
     const lowerText = text.toLowerCase();
     const spanishMatches = spanishWords.filter(word => lowerText.includes(word)).length;
     return spanishMatches > 0 ? 'es' : 'en';
 }
 
 // Calculate similarity score
+// Helper to normalize text (remove accents and casing)
+function normalizeText(text) {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Calculate similarity score
 function calculateSimilarity(text, keywords) {
-    const lowerText = text.toLowerCase();
+    const normalizedText = normalizeText(text);
     let score = 0;
 
     keywords.forEach(keyword => {
-        if (lowerText.includes(keyword.toLowerCase())) {
+        if (normalizedText.includes(normalizeText(keyword))) {
             score += 1;
         }
     });

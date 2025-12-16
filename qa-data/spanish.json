@@ -38,8 +38,13 @@
             "login",
             "entrar",
             "acceder",
+            "accesar",
+            "ingresar",
+            "no puedo entrar",
+            "no entra",
             "iniciar sesión",
-            "contraseña"
+            "contraseña",
+            "loguear"
         ],
         "question": "¿Cómo inicio sesión?",
         "answer": "Inicia sesión en www.richmondlp.com con tu email y contraseña.\n\nSi olvidaste tu contraseña, usa la opción 'Forgotten password' en el login.",
