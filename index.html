@@ -504,329 +504,331 @@
     <div class="chat-header" id="header">
         <div class="header-info">
             <div class="bot-avatar-small">
-                <img src="data:image/png;base64,
+                <img src="logo.png" alt="Bot Logo">
             </div>
         </div>
     </div>
 
     <!-- Restart Button (Hidden initially) -->
-    <button id=" restart-btn" class="restart-button" style="display:none;" onclick="restartChat()">
-                🏠 Restart Chat
-                </button>
+    <button id="restart-btn" class="restart-button" style="display:none;" onclick="restartChat()">
+        🏠 Restart Chat
+    </button>
 
-                <!-- Developer Credit -->
-                <div class="developer-credit">
-                    developed by <a href="https://github.com/yepzhi" target="_blank">@yepzhi</a>
+    <!-- Developer Credit -->
+    <div class="developer-credit">
+        developed by <a href="https://github.com/yepzhi" target="_blank">@yepzhi</a>
+    </div>
+
+    <!-- Main Container -->
+    <!-- Main Container -->
+    <div id="chat-container">
+
+        <!-- Centered Welcome View (Wrapped for Flex centering) -->
+        <div class="welcome-wrapper">
+            <div class="welcome-container" id="welcome-view">
+                <!-- Large Logo Restored -->
+                <div class="bot-logo-large">
+                    <img src="logo.png" alt="Bot Logo" style="width:100%; height:100%; object-fit:contain;">
                 </div>
 
-                <!-- Main Container -->
-                <div id=" chat-container">
+                <h1 class="welcome-title">¿Cómo puedo ayudarte?</h1>
+                <p class="welcome-subtitle">Selecciona una opción para recibir ayuda inmediata.</p>
 
-                    <!-- Centered Welcome View (Wrapped for Flex centering) -->
-                    <div class="welcome-wrapper">
-                        <div class="welcome-container" id="welcome-view">
-                            <!-- Large Logo Restored -->
-                            <div class="bot-logo-large">
-                                <img src="data:image/png;base64,
+                <div class="chips-grid">
+                    <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
+                        <span class="chip-icon">🚫</span>
+                        Mi código no funciona
+                    </button>
+                    <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
+                        <span class="chip-icon">🔐</span>
+                        No puedo entrar a la plataforma
+                    </button>
+                    <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
+                        <span class="chip-icon">📝</span>
+                        No puedo hacer una tarea
+                    </button>
+                    <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
+                        <span class="chip-icon">📚</span>
+                        Mi material ya no está
+                    </button>
+                    <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
+                        <span class="chip-icon">📖</span>
+                        ¿Dónde compro mi libro?
+                    </button>
+                    <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
+                        <span class="chip-icon">💳</span>
+                        ¿Dónde compro mi licencia?
+                    </button>
+                </div>
 
-                <h1 class=" welcome-title">¿Cómo puedo ayudarte?</h1>
-                                <p class="welcome-subtitle">Selecciona una opción para recibir ayuda inmediata.</p>
+                <!-- Bilingual Note -->
+                <div class="bilingual-note">
+                    🌐 Este chatbot es bilingüe (Español/English)
+                </div>
+            </div>
+        </div>
 
-                                <div class="chips-grid">
-                                    <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
-                                        <span class="chip-icon">🚫</span>
-                                        Mi código no funciona
-                                    </button>
-                                    <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
-                                        <span class="chip-icon">🔐</span>
-                                        No puedo entrar a la plataforma
-                                    </button>
-                                    <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
-                                        <span class="chip-icon">📝</span>
-                                        No puedo hacer una tarea
-                                    </button>
-                                    <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
-                                        <span class="chip-icon">📚</span>
-                                        Mi material ya no está
-                                    </button>
-                                    <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
-                                        <span class="chip-icon">📖</span>
-                                        ¿Dónde compro mi libro?
-                                    </button>
-                                    <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
-                                        <span class="chip-icon">💳</span>
-                                        ¿Dónde compro mi licencia?
-                                    </button>
-                                </div>
+        <!-- Messages Area (Populated via JS) -->
+        <div id="messages-list"></div>
 
-                                <!-- Bilingual Note -->
-                                <div class="bilingual-note">
-                                    🌐 Este chatbot es bilingüe (Español/English)
-                                </div>
-                            </div>
-                        </div>
+    </div>
 
-                        <!-- Messages Area (Populated via JS) -->
-                        <div id="messages-list"></div>
+    <!-- Input -->
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"></textarea>
+        </div>
+        <button id="send-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
 
-                    </div>
+    <script>
+        // --- CONFIGURATION ---
+        const API_ENDPOINT = 'https://yepzhi-richmondbot.hf.space/api/chat';
 
-                    <!-- Input -->
-                    <div class="input-area">
-                        <div class="input-wrapper">
-                            <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"></textarea>
-                        </div>
-                        <button id="send-btn">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
-                    </div>
+        let hasStarted = false;
+        let isProcessing = false;
+        const conversationHistory = [];
 
-                    <script>
-                        // --- CONFIGURATION ---
-                        const API_ENDPOINT = 'https://yepzhi-richmondbot.hf.space/api/chat';
+        // UI Refs
+        const welcomeView = document.getElementById('welcome-view');
+        const header = document.getElementById('header');
+        const messagesList = document.getElementById('messages-list');
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
 
-                        let hasStarted = false;
-                        let isProcessing = false;
-                        const conversationHistory = [];
+        // ============================================
+        //      ✏️  EDITAR RESPUESTAS AQUÍ / EDIT ANSWERS HERE
+        // ============================================
+        const offlineAnswers = {
+            'code_error': {
+                text: "Si tu **Access Code** no funciona, verifica lo siguiente:\n\n1. Asegúrate de estar ingresándolo en **[LINK:registro]** si es la primera vez.\n2. Si ya tienes cuenta, el código ya no sirve. Solo necesitas tu usuario y contraseña en **[LINK:login]**.\n3. Revisa que no confundas letras con números (ej. 'O' con '0', 'I' con '1').\n\nSi el problema persiste, contacta a soporte.",
+                links: ['registro', 'login', 'ayuda']
+            },
+            'login_error': {
+                text: "Si no puedes entrar:\n\n1. Verifica que estés en el sitio correcto: **[LINK:login]**.\n2. Borra el caché de tu navegador.\n3. Si olvidaste tu contraseña, usa la opción **'Forgotten password'** en la pantalla de inicio.\n4. Si crees que tu usuario está bloqueado, espera 15 minutos e intenta de nuevo.",
+                links: ['login', 'ayuda']
+            },
+            'task_error': {
+                text: "Si no puedes abrir o enviar una tarea:\n\n1. Revisa tu conexión a internet.\n2. Asegúrate de que la fecha límite (Due Date) no haya pasado.\n3. Intenta usar otro navegador (Chrome o Firefox).\n4. Si es un error técnico, toma una captura de pantalla y avisa a tu profesor.",
+                links: ['ayuda']
+            },
+            'material_missing': {
+                text: "Si no ves tus materiales:\n\n1. Ve a la sección **'My Products'**.\n2. Verifica la fecha de expiración de tu producto.\n3. Si expiró, necesitarás adquirir una nueva licencia.\n4. Si acabas de activar el código, cierra sesión y vuelve a entrar.",
+                links: ['productos', 'ayuda']
+            },
+            'buy_book': {
+                text: "Puedes comprar tus libros físicos en:\n\n* Librerías locales (El Sótano, Gandhi, Mercado Libre).\n* Distribuidores autorizados en tu escuela.\n\nRecuerda que el libro físico incluye el código para la plataforma.",
+                links: ['contacto']
+            },
+            'buy_license': {
+                text: "Para comprar una licencia digital:\n\n* Contacta a la institución educativa (tu escuela).\n* Contacta al representante Richmond local.\n* Visita el sitio de ventas de tu país.\n\n[LINK:contacto] para más información.",
+                links: ['contacto']
+            }
+        };
 
-                        // UI Refs
-                        const welcomeView = document.getElementById('welcome-view');
-                        const header = document.getElementById('header');
-                        const messagesList = document.getElementById('messages-list');
-                        const chatContainer = document.getElementById('chat-container');
-                        const userInput = document.getElementById('user-input');
-                        const sendBtn = document.getElementById('send-btn');
+        // Resources for Links
+        const resources = {
+            registro: { title: "Ir a Registro", url: "https://www.richmondlp.com/register" },
+            login: { title: "Ir a Login", url: "https://www.richmondlp.com" },
+            ayuda: { title: "Centro de Ayuda", url: "https://rlp-ug.knowledgeowl.com/help" },
+            contacto: { title: "Contacto Ventas", url: "https://richmond.com.mx/contacto/" },
+            app: { title: "Descargar App", url: "https://richmondlp.com" },
+            productos: { title: "Mis Productos", url: "https://richmondlp.com" }
+        };
 
-                        // ============================================
-                        //      ✏️  EDITAR RESPUESTAS AQUÍ / EDIT ANSWERS HERE
-                        // ============================================
-                        const offlineAnswers = {
-                            'code_error': {
-                                text: "Si tu **Access Code** no funciona, verifica lo siguiente:\n\n1. Asegúrate de estar ingresándolo en **[LINK:registro]** si es la primera vez.\n2. Si ya tienes cuenta, el código ya no sirve. Solo necesitas tu usuario y contraseña en **[LINK:login]**.\n3. Revisa que no confundas letras con números (ej. 'O' con '0', 'I' con '1').\n\nSi el problema persiste, contacta a soporte.",
-                                links: ['registro', 'login', 'ayuda']
-                            },
-                            'login_error': {
-                                text: "Si no puedes entrar:\n\n1. Verifica que estés en el sitio correcto: **[LINK:login]**.\n2. Borra el caché de tu navegador.\n3. Si olvidaste tu contraseña, usa la opción **'Forgotten password'** en la pantalla de inicio.\n4. Si crees que tu usuario está bloqueado, espera 15 minutos e intenta de nuevo.",
-                                links: ['login', 'ayuda']
-                            },
-                            'task_error': {
-                                text: "Si no puedes abrir o enviar una tarea:\n\n1. Revisa tu conexión a internet.\n2. Asegúrate de que la fecha límite (Due Date) no haya pasado.\n3. Intenta usar otro navegador (Chrome o Firefox).\n4. Si es un error técnico, toma una captura de pantalla y avisa a tu profesor.",
-                                links: ['ayuda']
-                            },
-                            'material_missing': {
-                                text: "Si no ves tus materiales:\n\n1. Ve a la sección **'My Products'**.\n2. Verifica la fecha de expiración de tu producto.\n3. Si expiró, necesitarás adquirir una nueva licencia.\n4. Si acabas de activar el código, cierra sesión y vuelve a entrar.",
-                                links: ['productos', 'ayuda']
-                            },
-                            'buy_book': {
-                                text: "Puedes comprar tus libros físicos en:\n\n* Librerías locales (El Sótano, Gandhi, Mercado Libre).\n* Distribuidores autorizados en tu escuela.\n\nRecuerda que el libro físico incluye el código para la plataforma.",
-                                links: ['contacto']
-                            },
-                            'buy_license': {
-                                text: "Para comprar una licencia digital:\n\n* Contacta a la institución educativa (tu escuela).\n* Contacta al representante Richmond local.\n* Visita el sitio de ventas de tu país.\n\n[LINK:contacto] para más información.",
-                                links: ['contacto']
-                            }
-                        };
+        // --- TRANSITION LOGIC ---
+        function transitionToChat() {
+            if (hasStarted) return;
+            hasStarted = true;
+            welcomeView.classList.add('hidden');
+            header.style.opacity = '1';
 
-                        // Resources for Links
-                        const resources = {
-                            registro: { title: "Ir a Registro", url: "https://www.richmondlp.com/register" },
-                            login: { title: "Ir a Login", url: "https://www.richmondlp.com" },
-                            ayuda: { title: "Centro de Ayuda", url: "https://rlp-ug.knowledgeowl.com/help" },
-                            contacto: { title: "Contacto Ventas", url: "https://richmond.com.mx/contacto/" },
-                            app: { title: "Descargar App", url: "https://richmondlp.com" },
-                            productos: { title: "Mis Productos", url: "https://richmondlp.com" }
-                        };
+            // Show restart button
+            document.getElementById('restart-btn').style.display = 'block';
 
-                        // --- TRANSITION LOGIC ---
-                        function transitionToChat() {
-                            if (hasStarted) return;
-                            hasStarted = true;
-                            welcomeView.classList.add('hidden');
-                            header.style.opacity = '1';
+            // Allow animation to play then remove from layout flow if needed, 
+            // but opacity/pointer-events is usually enough.
+            setTimeout(() => {
+                welcomeView.style.display = 'none';
+            }, 500);
+        }
 
-                            // Show restart button
-                            document.getElementById('restart-btn').style.display = 'block';
+        // --- RESTART CHAT ---
+        function restartChat() {
+            // Clear conversation history
+            conversationHistory.length = 0;
 
-                            // Allow animation to play then remove from layout flow if needed, 
-                            // but opacity/pointer-events is usually enough.
-                            setTimeout(() => {
-                                welcomeView.style.display = 'none';
-                            }, 500);
-                        }
+            // Clear messages
+            const messagesList = document.getElementById('messages-list');
+            messagesList.innerHTML = '';
 
-                        // --- RESTART CHAT ---
-                        function restartChat() {
-                            // Clear conversation history
-                            conversationHistory.length = 0;
+            // Reset state
+            hasStarted = false;
+            isProcessing = false;
 
-                            // Clear messages
-                            const messagesList = document.getElementById('messages-list');
-                            messagesList.innerHTML = '';
+            // Hide header and restart button
+            header.style.opacity = '0';
+            document.getElementById('restart-btn').style.display = 'none';
 
-                            // Reset state
-                            hasStarted = false;
-                            isProcessing = false;
+            // Show welcome view
+            welcomeView.style.display = 'block';
+            welcomeView.classList.remove('hidden');
 
-                            // Hide header and restart button
-                            header.style.opacity = '0';
-                            document.getElementById('restart-btn').style.display = 'none';
+            // Clear input
+            userInput.value = '';
+            autoResize();
+        }
 
-                            // Show welcome view
-                            welcomeView.style.display = 'block';
-                            welcomeView.classList.remove('hidden');
+        // --- CHAT LOGIC ---
 
-                            // Clear input
-                            userInput.value = '';
-                            autoResize();
-                        }
+        function autoResize() {
+            userInput.style.height = 'auto';
+            userInput.style.height = userInput.scrollHeight + 'px';
+        }
 
-                        // --- CHAT LOGIC ---
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
 
-                        function autoResize() {
-                            userInput.style.height = 'auto';
-                            userInput.style.height = userInput.scrollHeight + 'px';
-                        }
+        function addMessage(text, isUser, links = []) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isUser ? 'user' : 'bot'}`;
 
-                        function scrollToBottom() {
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                        }
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            if (isUser) {
+                // SVG Icon for User (No Emoji)
+                avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+            } else {
+                const img = document.createElement('img');
+                img.src = 'logo.png';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                avatar.appendChild(img);
+            }
 
-                        function addMessage(text, isUser, links = []) {
-                            const msgDiv = document.createElement('div');
-                            msgDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            const content = document.createElement('div');
+            content.className = 'message-content';
 
-                            const avatar = document.createElement('div');
-                            avatar.className = 'message-avatar';
-                            if (isUser) {
-                                // SVG Icon for User (No Emoji)
-                                avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
-                            } else {
-                                const img = document.createElement('img');
-                                img.src = 'logo.png';
-                                img.style.width = '100%';
-                                img.style.height = '100%';
-                                img.style.objectFit = 'cover';
-                                avatar.appendChild(img);
-                            }
+            // Simple formatting
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\n/g, '<br>');
 
-                            const content = document.createElement('div');
-                            content.className = 'message-content';
+            content.innerHTML = formattedText;
 
-                            // Simple formatting
-                            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                            formattedText = formattedText.replace(/\n/g, '<br>');
+            // Resolve links manually if passed directly (from offline mode) or extract them (from AI)
+            if (links.length === 0) {
+                // Try extracting if text has [LINK:...]
+                const extracted = extractLinks(text);
+                if (extracted.links.length > 0) {
+                    content.innerHTML = extracted.cleanText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                    links = extracted.links;
+                }
+            }
 
-                            content.innerHTML = formattedText;
+            if (links.length > 0) {
+                const linkContainer = document.createElement('div');
+                linkContainer.style.marginTop = '10px';
+                links.forEach(l => {
+                    const lObj = typeof l === 'string' ? resources[l] : l; // Handle string keys or objects
+                    if (lObj) {
+                        const a = document.createElement('a');
+                        a.href = lObj.url;
+                        a.className = 'resource-link';
+                        a.target = '_blank';
+                        a.textContent = lObj.title + ' →';
+                        linkContainer.appendChild(a);
+                    }
+                });
+                content.appendChild(linkContainer);
+            }
 
-                            // Resolve links manually if passed directly (from offline mode) or extract them (from AI)
-                            if (links.length === 0) {
-                                // Try extracting if text has [LINK:...]
-                                const extracted = extractLinks(text);
-                                if (extracted.links.length > 0) {
-                                    content.innerHTML = extracted.cleanText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-                                    links = extracted.links;
-                                }
-                            }
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(content);
 
-                            if (links.length > 0) {
-                                const linkContainer = document.createElement('div');
-                                linkContainer.style.marginTop = '10px';
-                                links.forEach(l => {
-                                    const lObj = typeof l === 'string' ? resources[l] : l; // Handle string keys or objects
-                                    if (lObj) {
-                                        const a = document.createElement('a');
-                                        a.href = lObj.url;
-                                        a.className = 'resource-link';
-                                        a.target = '_blank';
-                                        a.textContent = lObj.title + ' →';
-                                        linkContainer.appendChild(a);
-                                    }
-                                });
-                                content.appendChild(linkContainer);
-                            }
+            if (isUser) {
+                msgDiv.innerHTML = '';
+                msgDiv.appendChild(content);
+                msgDiv.appendChild(avatar);
+            }
 
-                            msgDiv.appendChild(avatar);
-                            msgDiv.appendChild(content);
+            messagesList.appendChild(msgDiv);
+            scrollToBottom();
+        }
 
-                            if (isUser) {
-                                msgDiv.innerHTML = '';
-                                msgDiv.appendChild(content);
-                                msgDiv.appendChild(avatar);
-                            }
+        function sendQuickPrompt(text) {
+            transitionToChat();
+            userInput.value = text; // optional: visual feedback or just send
+            handleSend(text);
+        }
 
-                            messagesList.appendChild(msgDiv);
-                            scrollToBottom();
-                        }
+        function sendOfflineResponse(key) {
+            transitionToChat();
+            const data = offlineAnswers[key];
 
-                        function sendQuickPrompt(text) {
-                            transitionToChat();
-                            userInput.value = text; // optional: visual feedback or just send
-                            handleSend(text);
-                        }
+            // 1. Show User's "Question" (simulated)
+            // We find the button text to use as the user message
+            // OR we just use a generic label. Let's use logic to find the title.
+            let userQuestion = "Ayuda";
+            if (key === 'code_error') userQuestion = "Mi código no funciona";
+            if (key === 'login_error') userQuestion = "No puedo entrar a la plataforma";
+            if (key === 'task_error') userQuestion = "No puedo hacer una tarea";
+            if (key === 'material_missing') userQuestion = "Mi material ya no está";
+            if (key === 'buy_book') userQuestion = "Dónde compro mi libro";
+            if (key === 'buy_license') userQuestion = "Dónde compro mi licencia";
 
-                        function sendOfflineResponse(key) {
-                            transitionToChat();
-                            const data = offlineAnswers[key];
+            addMessage(userQuestion, true);
 
-                            // 1. Show User's "Question" (simulated)
-                            // We find the button text to use as the user message
-                            // OR we just use a generic label. Let's use logic to find the title.
-                            let userQuestion = "Ayuda";
-                            if (key === 'code_error') userQuestion = "Mi código no funciona";
-                            if (key === 'login_error') userQuestion = "No puedo entrar a la plataforma";
-                            if (key === 'task_error') userQuestion = "No puedo hacer una tarea";
-                            if (key === 'material_missing') userQuestion = "Mi material ya no está";
-                            if (key === 'buy_book') userQuestion = "Dónde compro mi libro";
-                            if (key === 'buy_license') userQuestion = "Dónde compro mi licencia";
+            // 2. Show Bot's Instant Answer
+            // Simulate tiny delay for "thinking" feel
+            isProcessing = true;
 
-                            addMessage(userQuestion, true);
-
-                            // 2. Show Bot's Instant Answer
-                            // Simulate tiny delay for "thinking" feel
-                            isProcessing = true;
-
-                            // Typing Indicator
-                            const typingDiv = document.createElement('div');
-                            typingDiv.className = 'message bot typing';
-                            typingDiv.innerHTML = `
+            // Typing Indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing';
+            typingDiv.innerHTML = `
                 <div class="message-avatar" style="overflow:hidden"><img src="data:image/png;base64,
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                     </div>
                 </div>
             `;
-                            messagesList.appendChild(typingDiv);
-                            scrollToBottom();
+            messagesList.appendChild(typingDiv);
+            scrollToBottom();
 
-                            setTimeout(() => {
-                                typingDiv.remove();
+            setTimeout(() => {
+                typingDiv.remove();
 
-                                // Map string keys in links array to real objects if needed
-                                const linkObjects = data.links.map(k => resources[k]);
+                // Map string keys in links array to real objects if needed
+                const linkObjects = data.links.map(k => resources[k]);
 
-                                addMessage(data.text, false, linkObjects);
-                                isProcessing = false;
-                            }, 600);
-                        }
+                addMessage(data.text, false, linkObjects);
+                isProcessing = false;
+            }, 600);
+        }
 
-                        async function handleSend(manualText = null) {
-                            transitionToChat();
-                            const text = manualText || userInput.value.trim();
-                            if (!text || isProcessing) return;
+        async function handleSend(manualText = null) {
+            transitionToChat();
+            const text = manualText || userInput.value.trim();
+            if (!text || isProcessing) return;
 
-                            isProcessing = true;
-                            addMessage(text, true);
-                            userInput.value = '';
-                            userInput.style.height = 'auto';
+            isProcessing = true;
+            addMessage(text, true);
+            userInput.value = '';
+            userInput.style.height = 'auto';
 
-                            // Typing Indicator
-                            const typingDiv = document.createElement('div');
-                            typingDiv.className = 'message bot typing';
-                            typingDiv.innerHTML = `
+            // Typing Indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing';
+            typingDiv.innerHTML = `
                 <div class="message-avatar" style="overflow:hidden"><img src="data:image/png;base64,
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
@@ -834,76 +836,76 @@
                     </div>
                 </div>
             `;
-                            messagesList.appendChild(typingDiv);
-                            scrollToBottom();
+            messagesList.appendChild(typingDiv);
+            scrollToBottom();
 
-                            try {
-                                const aiResponse = await getAIResponse(text);
-                                const extracted = extractLinks(aiResponse);
+            try {
+                const aiResponse = await getAIResponse(text);
+                const extracted = extractLinks(aiResponse);
 
-                                typingDiv.remove();
-                                addMessage(extracted.cleanText, false, extracted.links);
+                typingDiv.remove();
+                addMessage(extracted.cleanText, false, extracted.links);
 
-                            } catch (e) {
-                                typingDiv.remove();
-                                addMessage("⚠️ Error: " + e.message, false);
-                            } finally {
-                                isProcessing = false;
-                            }
-                        }
+            } catch (e) {
+                typingDiv.remove();
+                addMessage("⚠️ Error: " + e.message, false);
+            } finally {
+                isProcessing = false;
+            }
+        }
 
-                        async function getAIResponse(question) {
-                            conversationHistory.push({ role: "user", content: question });
+        async function getAIResponse(question) {
+            conversationHistory.push({ role: "user", content: question });
 
-                            // We send full conversation history for context
-                            const messagesToSend = conversationHistory.slice(-10);
+            // We send full conversation history for context
+            const messagesToSend = conversationHistory.slice(-10);
 
-                            const response = await fetch(API_ENDPOINT, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ messages: messagesToSend })
-                            });
+            const response = await fetch(API_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: messagesToSend })
+            });
 
-                            if (!response.ok) {
-                                if (response.status === 429) {
-                                    throw new Error("⏳ Estoy recibiendo muchos mensajes. Espera 1 minuto.");
-                                }
-                                if (response.status === 503) {
-                                    throw new Error("🔧 El servicio está ocupado. Intenta de nuevo.");
-                                }
-                                throw new Error("No puedo conectar. (Status: " + response.status + ")");
-                            }
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error("⏳ Estoy recibiendo muchos mensajes. Espera 1 minuto.");
+                }
+                if (response.status === 503) {
+                    throw new Error("🔧 El servicio está ocupado. Intenta de nuevo.");
+                }
+                throw new Error("No puedo conectar. (Status: " + response.status + ")");
+            }
 
-                            const data = await response.json();
-                            // Server returns { content: [{ text: "..." }] }
-                            const text = data.content?.[0]?.text || "No response.";
+            const data = await response.json();
+            // Server returns { content: [{ text: "..." }] }
+            const text = data.content?.[0]?.text || "No response.";
 
-                            conversationHistory.push({ role: "assistant", content: text });
-                            return text;
-                        }
+            conversationHistory.push({ role: "assistant", content: text });
+            return text;
+        }
 
-                        function extractLinks(text) {
-                            const linkMatches = text.match(/\[LINK:(\w+)\]/g) || [];
-                            const links = [];
-                            linkMatches.forEach(match => {
-                                const key = match.match(/\[LINK:(\w+)\]/)[1];
-                                if (resources[key]) links.push(resources[key]);
-                            });
-                            const cleanText = text.replace(/\[LINK:\w+\]/g, '');
-                            return { cleanText, links };
-                        }
+        function extractLinks(text) {
+            const linkMatches = text.match(/\[LINK:(\w+)\]/g) || [];
+            const links = [];
+            linkMatches.forEach(match => {
+                const key = match.match(/\[LINK:(\w+)\]/)[1];
+                if (resources[key]) links.push(resources[key]);
+            });
+            const cleanText = text.replace(/\[LINK:\w+\]/g, '');
+            return { cleanText, links };
+        }
 
-                        // --- HANDLERS ---
-                        sendBtn.addEventListener('click', () => handleSend());
-                        userInput.addEventListener('input', autoResize);
-                        userInput.addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        });
+        // --- HANDLERS ---
+        sendBtn.addEventListener('click', () => handleSend());
+        userInput.addEventListener('input', autoResize);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
 
-                    </script>
+    </script>
 </body>
 
 </html>
