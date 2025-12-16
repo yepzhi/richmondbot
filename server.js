@@ -116,6 +116,106 @@ function formatLinks(links) {
     return '\n\n📎 Enlaces útiles:\n' + links.map(link => `• ${link}`).join('\n');
 }
 
+// Global variable to store the discovered working model
+let ACTIVE_GEMINI_MODEL = null;
+
+// Function to discover available Gemini models on startup
+async function discoverGeminiModel(apiKey) {
+    if (!apiKey) return;
+    try {
+        console.log('🔍 Discovering available Gemini models...');
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        const data = await response.json();
+
+        if (!data.models) {
+            console.error('❌ No models found in discovery response:', data);
+            return;
+        }
+
+        // Find the first model that supports generateContent
+        const validModel = data.models.find(m =>
+            m.name.includes('gemini') &&
+            m.supportedGenerationMethods.includes('generateContent')
+        );
+
+        if (validModel) {
+            ACTIVE_GEMINI_MODEL = validModel.name.replace('models/', ''); // remove 'models/' prefix for API calls sometimes, or keep it depending on endpoint. REST usually wants just the name or models/name. Let's try to keep it clean.
+            // Actually v1beta/models/NAME:generateContent expects just NAME usually if name is simple, OR full resource name.
+            // Let's store the short name if possible, or full.
+            // API expects: https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent
+            // data.models names are like "models/gemini-pro". We need "gemini-pro".
+            ACTIVE_GEMINI_MODEL = validModel.name.split('/').pop();
+            console.log(`✅ Auto-discovered Gemini Model: ${ACTIVE_GEMINI_MODEL}`);
+        } else {
+            console.warn('⚠️ No suitable Gemini chat model found in user availability list.');
+        }
+    } catch (error) {
+        console.error('❌ Model discovery failed:', error.message);
+    }
+}
+
+// Call discovery on load if Key exists
+if (process.env.GEMINI_API_KEY) {
+    discoverGeminiModel(process.env.GEMINI_API_KEY);
+}
+
+// Google Gemini API call (REST)
+async function queryGemini(messages, apiKey, language = 'es') {
+    // If we haven't discovered a model yet (and we have a key), try one last hail mary or default
+    const modelToUse = ACTIVE_GEMINI_MODEL || 'gemini-pro';
+
+    const lastMessage = messages[messages.length - 1].content;
+
+    // Load context
+    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+    const contextText = contextDB.map(qa => `${qa.category}: ${qa.answer}`).slice(0, 30).join('\n');
+
+    const promptText = `
+    Role: Technical Support Agent for "Richmond Learning Platform".
+    Context: ${contextText}
+    Instructions: Answer based on context. Concise (<150 words). Language: ${language}. Friendly 🚀.
+    User Query: ${lastMessage}`;
+
+    async function callRest(modelName) {
+        // Double check if we need models/ prefix. The URL is .../models/MODEL_NAME:generateContent
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }]
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    try {
+        console.log(`🤖 Querying Gemini REST with model: ${modelToUse}`);
+        return await callRest(modelToUse);
+    } catch (error) {
+        console.error(`❌ Gemini (${modelToUse}) failed: ${error.message}`);
+        // If auto-discovery failed or selected a bad one, fallback to hardcoded list
+        if (modelToUse === ACTIVE_GEMINI_MODEL) {
+            console.log('🔄 Retrying with fallback aliases...');
+            const fallbacks = ['gemini-1.5-flash', 'gemini-1.0-pro'];
+            for (const fb of fallbacks) {
+                try {
+                    return await callRest(fb);
+                } catch (e) { console.warn(`Fallback ${fb} failed.`); }
+            }
+        }
+        return null;
+    }
+}
+
 // Hugging Face Inference API call
 async function queryHuggingFace(messages, apiKey, language = 'es') {
     const lastMessage = messages[messages.length - 1].content;
@@ -216,19 +316,18 @@ app.post('/api/chat', async (req, res) => {
             });
         }
 
-        // 2. Try Hugging Face Inference API (Fallback from broken Gemini)
-        // Check for HF_API_KEY as primary now
-        const apiKey = process.env.HF_API_KEY || process.env.GEMINI_API_KEY;
+        // 2. Try Gemini API (Restored with Auto-Discovery)
+        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
 
         if (apiKey) {
-            console.log('🤖 Trying AI (Hugging Face / Phi-3)...');
-            const aiResponse = await queryHuggingFace(messages, apiKey, language);
+            console.log('🤖 Trying Gemini AI (Auto-Discovery Mode)...');
+            const aiResponse = await queryGemini(messages, apiKey, language);
 
             if (aiResponse) {
-                console.log('✅ AI response received');
+                console.log('✅ Gemini response received');
                 return res.json({
                     content: [{ text: aiResponse }],
-                    source: 'ai'
+                    source: 'gemini'
                 });
             }
         } else {
