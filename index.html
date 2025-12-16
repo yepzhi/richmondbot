@@ -549,7 +549,7 @@
 
     <!-- Restart Button -->
     <button id="restart-btn" class="restart-button" onclick="restartChat()">
-        🏠 Restart
+        🏠 Restart Chat
     </button>
 
     <!-- Developer Credit -->
@@ -578,7 +578,7 @@
                             line-height: 1.1;
                             letter-spacing: -0.02em;
                             padding-bottom: 15px;
-                        ">Richmond Chatbot<br>Support 🚀</h1>
+                        ">Richmond Chatbot<br>UniversitySupport 🚀</h1>
                         <p style="
                             color: #94a3b8;
                             font-size: 1.2rem;
@@ -590,7 +590,7 @@
                     <div class="chips-grid">
                         <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
                             <span class="chip-icon">🚫</span>
-                            Mi código no funciona
+                            Mi código ya está utilizado, no es válido
                         </button>
                         <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
                             <span class="chip-icon">🔐</span>
@@ -606,11 +606,11 @@
                         </button>
                         <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
                             <span class="chip-icon">📖</span>
-                            ¿Dónde compro mi libro?
+                            ¿No me aparece la tarea en mi plataforma?
                         </button>
                         <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
                             <span class="chip-icon">💳</span>
-                            ¿Dónde compro mi licencia?
+                            ¿Dónde compro mi libro ó licencia?
                         </button>
                     </div>
 
@@ -658,27 +658,28 @@
 
         const offlineAnswers = {
             'code_error': {
-                text: "Si tu **Access Code** no funciona, verifica lo siguiente:\n\n1. Asegúrate de estar ingresándolo en **[LINK:registro]** si es la primera vez.\n2. Si ya tienes cuenta, el código ya no sirve. Solo necesitas tu usuario y contraseña en **[LINK:login]**.\n3. Revisa que no confundas letras con números (ej. 'O' con '0', 'I' con '1').\n\nSi el problema persiste, contacta a soporte.",
-                links: ['registro', 'login', 'ayuda']
+                text: "Si tu código dice **'Already Used' (Ya utilizado)**:\n\n1. El código es de **un solo uso**. Si ya creaste tu cuenta, no necesitas volver a ingresarlo.\n2. Solo inicia sesión con tu usuario y contraseña en **[LINK:login]**.\n3. Si es la primera vez que lo usas y falla, contacta a tu profesor o a soporte técnico con una foto del código.",
+                links: ['login', 'ayuda']
             },
             'login_error': {
-                text: "Si no puedes entrar:\n\n1. Verifica que estés en el sitio correcto: **[LINK:login]**.\n2. Borra el caché de tu navegador.\n3. Si olvidaste tu contraseña, usa la opción **'Forgotten password'** en la pantalla de inicio.\n4. Si crees que tu usuario está bloqueado, espera 15 minutos e intenta de nuevo.",
+                text: "Si no puedes entrar:\n\n1. Verifica que estés en el sitio correcto: **[LINK:login]**.\n2. Borra el caché de tu navegador.\n3. Si olvidaste tu contraseña, usa la opción **'Forgotten password'**.\n4. Si tu cuenta se bloqueó, espera 15 min.",
                 links: ['login', 'ayuda']
             },
             'task_error': {
-                text: "Si no puedes abrir o enviar una tarea:\n\n1. Revisa tu conexión a internet.\n2. Asegúrate de que la fecha límite (Due Date) no haya pasado.\n3. Intenta usar otro navegador (Chrome o Firefox).\n4. Si es un error técnico, toma una captura de pantalla y avisa a tu profesor.",
+                text: "Si tienes problemas técnicos con una tarea:\n\n1. Revisa tu conexión a internet.\n2. Intenta usar otro navegador (Chrome/Firefox).\n3. Toma captura de pantalla del error y envíala a tu profesor.",
                 links: ['ayuda']
             },
             'material_missing': {
-                text: "Si no ves tus materiales:\n\n1. Ve a la sección **'My Products'**.\n2. Verifica la fecha de expiración de tu producto.\n3. Si expiró, necesitarás adquirir una nueva licencia.\n4. Si acabas de activar el código, cierra sesión y vuelve a entrar.",
+                text: "Si no ves tus materiales:\n\n1. Ve a **'My Products'**.\n2. Verifica la fecha de expiración.\n3. Si el curso caducó, necesitarás una nueva licencia.",
                 links: ['productos', 'ayuda']
             },
             'buy_book': {
-                text: "Puedes comprar tus libros físicos en:\n\n* Librerías locales (El Sótano, Gandhi, Mercado Libre).\n* Distribuidores autorizados en tu escuela.\n\nRecuerda que el libro físico incluye el código para la plataforma.",
-                links: ['contacto']
+                // Repurposed for "No me aparece la tarea"
+                text: "Si no te aparece una tarea esperada:\n\n1. Verifica con tu profesor que te haya **asignado** la tarea.\n2. Revisa la **fecha de inicio y fin** (Start/End Date).\n3. Si la fecha ya pasó, la tarea desaparecerá de 'To Do'.\n4. Revisa en la pestaña 'Done' si ya la entregaste.",
+                links: ['ayuda']
             },
             'buy_license': {
-                text: "Para comprar una licencia digital:\n\n* Contacta a la institución educativa (tu escuela).\n* Contacta al representante Richmond local.\n* Visita el sitio de ventas de tu país.\n\n[LINK:contacto] para más información.",
+                text: "Para adquirir libros o licencias universitarias:\n\n* Tienda en línea Richmond (Si aplica en tu país).\n* Distribuidores autorizados de tu universidad.\n* Contacta a ventas aquí: **[LINK:contacto]**.",
                 links: ['contacto']
             }
         };
