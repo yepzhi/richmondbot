@@ -25,29 +25,29 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #0a0a0a;
-            /* Background gradient... */
             background-image:
                 radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
                 radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
                 radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
             color: var(--text-main);
-            height: 100vh;
-            /* Fallback */
-            height: 100dvh;
-            /* Mobile viewport fix */
-            margin: 0;
-            overflow: hidden;
-            /* Prevent body scroll, handle inside container */
             display: flex;
             flex-direction: column;
         }
 
         /* Header */
         .chat-header {
-            padding: 16px 20px;
+            padding: 12px 16px;
             background: rgba(20, 20, 20, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -57,11 +57,8 @@
             justify-content: space-between;
             z-index: 10;
             opacity: 0;
-            /* Hidden initially for centered view */
             transition: opacity 0.3s ease;
-            position: absolute;
-            top: 0;
-            width: 100%;
+            flex-shrink: 0;
         }
 
         .header-info {
@@ -73,7 +70,6 @@
         .bot-avatar-small {
             width: 32px;
             height: 32px;
-            /* background: var(--primary-gradient); REMOVED GRADIENT FOR LOGO */
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -92,31 +88,138 @@
             font-weight: 600;
         }
 
-        /* Main Chat Area - FIXED SCROLL */
-        #chat-container {
+        /* Main Chat Container */
+        .chat-main {
             flex: 1;
-            overflow-y: auto !important;
-            overflow-x: hidden;
-            padding: 20px;
-            padding-top: 90px;
-            padding-bottom: 140px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            scroll-behavior: smooth;
+            overflow: hidden;
             position: relative;
-            z-index: 1;
-            -webkit-overflow-scrolling: touch;
-            max-height: calc(100vh - 80px);
         }
 
-        /* Message & Chat Styles (Restored) */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        /* Messages Area */
+        #messages-list {
+            padding: 20px;
+            padding-bottom: 20px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Welcome View - FIXED CENTERING */
+        .welcome-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 40px 20px;
+        }
+
+        .welcome-container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.5s ease;
+        }
+
+        .welcome-container.hidden {
+            display: none;
+        }
+
+        /* Logo */
+        .bot-logo-large {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bot-logo-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            padding: 0 10px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--text-dim);
+            margin-bottom: 32px;
+        }
+
+        /* Chips Grid */
+        .chips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 12px;
+            border-radius: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chip-btn:active {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(0.98);
+        }
+
+        .chip-icon {
+            font-size: 18px;
+            background: rgba(102, 126, 234, 0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Messages */
         .message {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             animation: fadeIn 0.3s ease;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 0 auto 16px auto;
             width: 100%;
         }
 
@@ -137,8 +240,8 @@
         }
 
         .message-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.1);
             display: flex;
@@ -149,7 +252,6 @@
             color: #fff;
         }
 
-        /* Ensure img fits perfectly */
         .message-avatar img {
             width: 100%;
             height: 100%;
@@ -157,160 +259,46 @@
         }
 
         .message-content {
-            padding: 14px 18px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
+            border-radius: 16px;
             border-top-left-radius: 4px;
             line-height: 1.5;
-            font-size: 15px;
+            font-size: 14px;
             color: #fff;
             word-wrap: break-word;
-            max-width: 80%;
+            max-width: calc(100% - 50px);
         }
 
         .message.user .message-content {
             background: var(--user-bg);
             border: none;
-            border-radius: 18px;
+            border-radius: 16px;
             border-top-right-radius: 4px;
             color: white;
         }
 
-        /* Layout Fix for Scroll (Welcome View) */
-        /* Instead of absolute positioning, we use flex auto margins to center it in the scrollable area */
-        .welcome-wrapper {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 100%;
-            padding: 60px 20px 100px 20px;
-            /* More padding top/bottom to prevent cutting */
-        }
-
-        /* Updated Welcome Container */
-        .welcome-container {
-            /* No longer absolute */
-            position: relative;
-            transform: none;
-            left: auto;
-            top: auto;
-            margin: auto;
-            /* Vertically and horizontally centers in flex container */
-
-            text-align: center;
-            width: 100%;
-            max-width: 600px;
-            padding: 0 20px;
-            transition: all 0.5s ease;
-            z-index: 5;
-        }
-
-        .welcome-container.hidden {
-            display: none;
-            /* simple hide */
-        }
-
-        /* Restored Large Logo */
-        .bot-logo-large {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .bot-logo-large img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Chips Grid Update */
-        .chips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            /* Revert to smaller min-width for grid effect */
-            gap: 12px;
-            margin-top: 32px;
-            padding-bottom: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .chips-grid {
-                grid-template-columns: repeat(2, 1fr);
-                /* 2 columns on larger screens */
-            }
-        }
-
-        .chip-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 16px;
-            border-radius: 16px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-main);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chip-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .chip-icon {
-            font-size: 20px;
-            background: rgba(102, 126, 234, 0.2);
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-
-        /* Input Area - CRITICAL FIX: Z-INDEX */
+        /* Input Area - FIXED */
         .input-area {
-            padding: 16px;
+            padding: 12px 16px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
             background: rgba(20, 20, 20, 0.95);
-            /* Increased opacity */
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--glass-border);
             display: flex;
             gap: 10px;
             align-items: flex-end;
-            margin-bottom: 0;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
+            flex-shrink: 0;
             z-index: 100;
-            /* Ensure it's above everything */
         }
-
 
         .input-wrapper {
             flex: 1;
             position: relative;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
+            border-radius: 20px;
             border: 1px solid var(--glass-border);
             transition: all 0.3s ease;
         }
@@ -325,19 +313,19 @@
             background: transparent;
             border: none;
             color: white;
-            padding: 14px 18px;
-            font-size: 16px;
+            padding: 12px 16px;
+            font-size: 15px;
             font-family: inherit;
             resize: none;
-            max-height: 120px;
-            min-height: 50px;
+            max-height: 100px;
+            min-height: 42px;
             outline: none;
             display: block;
         }
 
         #send-btn {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: none;
             background: var(--primary-gradient);
@@ -398,10 +386,10 @@
             padding: 6px 12px;
             background: rgba(102, 126, 234, 0.1);
             border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 12px;
+            border-radius: 10px;
             color: #a8daff;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             transition: background 0.2s;
         }
 
@@ -412,11 +400,11 @@
         /* Bilingual Note */
         .bilingual-note {
             text-align: center;
-            padding: 12px 20px;
+            padding: 10px 16px;
             background: rgba(102, 126, 234, 0.1);
             border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 13px;
             color: rgba(255, 255, 255, 0.8);
             margin-top: 20px;
         }
@@ -424,31 +412,32 @@
         /* Restart Button */
         .restart-button {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
+            top: 16px;
+            right: 16px;
+            padding: 8px 16px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             z-index: 1000;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            display: none;
         }
 
-        .restart-button:hover {
+        .restart-button:active {
             background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            transform: scale(0.95);
         }
 
         /* Developer Credit */
         .developer-credit {
             position: fixed;
-            bottom: 90px;
-            right: 20px;
-            font-size: 11px;
+            bottom: 70px;
+            right: 16px;
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.4);
             z-index: 50;
         }
@@ -463,67 +452,92 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
-            #chat-container {
-                padding: 15px;
-                padding-top: 80px;
-                padding-bottom: 130px;
+            .welcome-title {
+                font-size: 26px;
             }
 
-            .message-content {
-                max-width: 85%;
+            .welcome-subtitle {
                 font-size: 14px;
             }
 
-            .restart-button {
-                top: 15px;
-                right: 15px;
-                padding: 8px 16px;
-                font-size: 13px;
+            .bot-logo-large {
+                width: 80px;
+                height: 80px;
             }
 
-            .developer-credit {
-                bottom: 85px;
-                right: 15px;
-                font-size: 10px;
+            .chips-grid {
+                gap: 8px;
+            }
+
+            .chip-btn {
+                font-size: 12px;
+                padding: 12px 10px;
+            }
+
+            .chip-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            #messages-list {
+                padding: 16px;
+            }
+
+            .message-content {
+                font-size: 14px;
+                padding: 10px 14px;
             }
         }
 
         @media (max-width: 480px) {
-            .chips-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .bot-logo-large {
-                width: 60px;
-                height: 60px;
-                font-size: 30px;
+            .welcome-wrapper {
+                padding: 20px 16px;
             }
 
             .welcome-title {
                 font-size: 24px;
             }
 
-            .message-content {
-                max-width: 90%;
+            .bot-logo-large {
+                width: 70px;
+                height: 70px;
+                margin-bottom: 20px;
+            }
+
+            .chips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chip-btn {
+                padding: 14px 12px;
+            }
+        }
+
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                height: -webkit-fill-available;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header (Hidden initially) -->
+    <!-- Header -->
     <div class="chat-header" id="header">
         <div class="header-info">
             <div class="bot-avatar-small">
-                <img src="logo.png" alt="Bot Logo">
+                <img src="https://via.placeholder.com/32/667eea/ffffff?text=R" alt="Bot Logo">
             </div>
         </div>
     </div>
 
-    <!-- Restart Button (Hidden initially) -->
-    <button id="restart-btn" class="restart-button" style="display:none;" onclick="restartChat()">
-        🏠 Restart Chat
+    <!-- Restart Button -->
+    <button id="restart-btn" class="restart-button" onclick="restartChat()">
+        🏠 Restart
     </button>
 
     <!-- Developer Credit -->
@@ -531,74 +545,69 @@
         developed by <a href="https://github.com/yepzhi" target="_blank">@yepzhi</a>
     </div>
 
-    <!-- Main Container -->
-    <!-- Main Container -->
-    <div id="chat-container">
+    <!-- Main Chat -->
+    <div class="chat-main">
+        <div id="chat-container">
+            <!-- Welcome View -->
+            <div class="welcome-wrapper">
+                <div class="welcome-container" id="welcome-view">
+                    <div class="bot-logo-large">
+                        <img src="https://via.placeholder.com/100/667eea/ffffff?text=R" alt="Bot Logo">
+                    </div>
 
-        <!-- Centered Welcome View (Wrapped for Flex centering) -->
-        <div class="welcome-wrapper">
-            <div class="welcome-container" id="welcome-view">
-                <!-- Large Logo Restored -->
-                <div class="bot-logo-large">
-                    <img src="logo.png" alt="Bot Logo" style="width:100%; height:100%; object-fit:contain;">
-                </div>
+                    <h1 class="welcome-title">¿Cómo puedo ayudarte?</h1>
+                    <p class="welcome-subtitle">Selecciona una opción para recibir ayuda inmediata.</p>
 
-                <h1 class="welcome-title"
-                    style="word-wrap: break-word; overflow-wrap: break-word; font-size: clamp(24px, 5vw, 36px); padding: 0 10px;">
-                    ¿Cómo puedo ayudarte?</h1>
-                <p class="welcome-subtitle">Selecciona una opción para recibir ayuda inmediata.</p>
+                    <div class="chips-grid">
+                        <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
+                            <span class="chip-icon">🚫</span>
+                            Mi código no funciona
+                        </button>
+                        <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
+                            <span class="chip-icon">🔐</span>
+                            No puedo entrar a la plataforma
+                        </button>
+                        <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
+                            <span class="chip-icon">📝</span>
+                            No puedo hacer una tarea
+                        </button>
+                        <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
+                            <span class="chip-icon">📚</span>
+                            Mi material ya no está
+                        </button>
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
+                            <span class="chip-icon">📖</span>
+                            ¿Dónde compro mi libro?
+                        </button>
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
+                            <span class="chip-icon">💳</span>
+                            ¿Dónde compro mi licencia?
+                        </button>
+                    </div>
 
-                <div class="chips-grid">
-                    <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
-                        <span class="chip-icon">🚫</span>
-                        Mi código no funciona
-                    </button>
-                    <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
-                        <span class="chip-icon">🔐</span>
-                        No puedo entrar a la plataforma
-                    </button>
-                    <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
-                        <span class="chip-icon">📝</span>
-                        No puedo hacer una tarea
-                    </button>
-                    <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
-                        <span class="chip-icon">📚</span>
-                        Mi material ya no está
-                    </button>
-                    <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
-                        <span class="chip-icon">📖</span>
-                        ¿Dónde compro mi libro?
-                    </button>
-                    <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
-                        <span class="chip-icon">💳</span>
-                        ¿Dónde compro mi licencia?
-                    </button>
-                </div>
-
-                <!-- Bilingual Note -->
-                <div class="bilingual-note">
-                    🌐 Este chatbot es bilingüe (Español/English)
+                    <div class="bilingual-note">
+                        🌐 Este chatbot es bilingüe (Español/English)
+                    </div>
                 </div>
             </div>
+
+            <!-- Messages Area -->
+            <div id="messages-list"></div>
         </div>
 
-        <!-- Messages Area (Populated via JS) -->
-        <div id="messages-list"></div>
-
-    </div>
-
-    <!-- Input -->
-    <div class="input-area">
-        <div class="input-wrapper">
-            <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"></textarea>
+        <!-- Input -->
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"></textarea>
+            </div>
+            <button id="send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
         </div>
-        <button id="send-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-        </button>
     </div>
 
     <script>
@@ -616,10 +625,8 @@
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
+        const restartBtn = document.getElementById('restart-btn');
 
-        // ============================================
-        //      ✏️  EDITAR RESPUESTAS AQUÍ / EDIT ANSWERS HERE
-        // ============================================
         const offlineAnswers = {
             'code_error': {
                 text: "Si tu **Access Code** no funciona, verifica lo siguiente:\n\n1. Asegúrate de estar ingresándolo en **[LINK:registro]** si es la primera vez.\n2. Si ya tienes cuenta, el código ya no sirve. Solo necesitas tu usuario y contraseña en **[LINK:login]**.\n3. Revisa que no confundas letras con números (ej. 'O' con '0', 'I' con '1').\n\nSi el problema persiste, contacta a soporte.",
@@ -647,7 +654,6 @@
             }
         };
 
-        // Resources for Links
         const resources = {
             registro: { title: "Ir a Registro", url: "https://www.richmondlp.com/register" },
             login: { title: "Ir a Login", url: "https://www.richmondlp.com" },
@@ -657,58 +663,36 @@
             productos: { title: "Mis Productos", url: "https://richmondlp.com" }
         };
 
-        // --- TRANSITION LOGIC ---
         function transitionToChat() {
             if (hasStarted) return;
             hasStarted = true;
-            welcomeView.classList.add('hidden');
+            welcomeView.parentElement.style.display = 'none';
             header.style.opacity = '1';
-
-            // Show restart button
-            document.getElementById('restart-btn').style.display = 'block';
-
-            // Allow animation to play then remove from layout flow if needed, 
-            // but opacity/pointer-events is usually enough.
-            setTimeout(() => {
-                welcomeView.style.display = 'none';
-            }, 500);
+            restartBtn.style.display = 'block';
         }
 
-        // --- RESTART CHAT ---
         function restartChat() {
-            // Clear conversation history
             conversationHistory.length = 0;
-
-            // Clear messages
-            const messagesList = document.getElementById('messages-list');
             messagesList.innerHTML = '';
-
-            // Reset state
             hasStarted = false;
             isProcessing = false;
-
-            // Hide header and restart button
             header.style.opacity = '0';
-            document.getElementById('restart-btn').style.display = 'none';
-
-            // Show welcome view
-            welcomeView.style.display = 'block';
-            welcomeView.classList.remove('hidden');
-
-            // Clear input
+            restartBtn.style.display = 'none';
+            welcomeView.parentElement.style.display = 'flex';
             userInput.value = '';
             autoResize();
+            chatContainer.scrollTop = 0;
         }
-
-        // --- CHAT LOGIC ---
 
         function autoResize() {
             userInput.style.height = 'auto';
-            userInput.style.height = userInput.scrollHeight + 'px';
+            userInput.style.height = Math.min(userInput.scrollHeight, 100) + 'px';
         }
 
         function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
         }
 
         function addMessage(text, isUser, links = []) {
@@ -718,41 +702,34 @@
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (isUser) {
-                // SVG Icon for User (No Emoji)
                 avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
             } else {
-                const img = document.createElement('img');
-                img.src = 'logo.png';
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                avatar.appendChild(img);
+                avatar.innerHTML = '<img src="https://via.placeholder.com/32/667eea/ffffff?text=R" alt="Bot">';
             }
 
             const content = document.createElement('div');
             content.className = 'message-content';
 
-            // Simple formatting
             let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             formattedText = formattedText.replace(/\n/g, '<br>');
 
-            content.innerHTML = formattedText;
-
-            // Resolve links manually if passed directly (from offline mode) or extract them (from AI)
             if (links.length === 0) {
-                // Try extracting if text has [LINK:...]
                 const extracted = extractLinks(text);
                 if (extracted.links.length > 0) {
                     content.innerHTML = extracted.cleanText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
                     links = extracted.links;
+                } else {
+                    content.innerHTML = formattedText;
                 }
+            } else {
+                content.innerHTML = formattedText;
             }
 
             if (links.length > 0) {
                 const linkContainer = document.createElement('div');
-                linkContainer.style.marginTop = '10px';
+                linkContainer.style.marginTop = '8px';
                 links.forEach(l => {
-                    const lObj = typeof l === 'string' ? resources[l] : l; // Handle string keys or objects
+                    const lObj = typeof l === 'string' ? resources[l] : l;
                     if (lObj) {
                         const a = document.createElement('a');
                         a.href = lObj.url;
@@ -765,51 +742,45 @@
                 content.appendChild(linkContainer);
             }
 
-            msgDiv.appendChild(avatar);
-            msgDiv.appendChild(content);
-
             if (isUser) {
-                msgDiv.innerHTML = '';
                 msgDiv.appendChild(content);
                 msgDiv.appendChild(avatar);
+            } else {
+                msgDiv.appendChild(avatar);
+                msgDiv.appendChild(content);
             }
 
             messagesList.appendChild(msgDiv);
             scrollToBottom();
         }
 
-        function sendQuickPrompt(text) {
-            transitionToChat();
-            userInput.value = text; // optional: visual feedback or just send
-            handleSend(text);
-        }
-
         function sendOfflineResponse(key) {
             transitionToChat();
             const data = offlineAnswers[key];
 
-            // 1. Show User's "Question" (simulated)
-            // We find the button text to use as the user message
-            // OR we just use a generic label. Let's use logic to find the title.
             let userQuestion = "Ayuda";
-            if (key === 'code_error') userQuestion = "Mi código no funciona";
-            if (key === 'login_error') userQuestion = "No puedo entrar a la plataforma";
-            if (key === 'task_error') userQuestion = "No puedo hacer una tarea";
-            if (key === 'material_missing') userQuestion = "Mi material ya no está";
-            if (key === 'buy_book') userQuestion = "Dónde compro mi libro";
-            if (key === 'buy_license') userQuestion = "Dónde compro mi licencia";
+            const questions = {
+                'code_error': "Mi código no funciona",
+                'login_error': "No puedo entrar a la plataforma",
+                'task_error': "No puedo hacer una tarea",
+                'material_missing': "Mi material ya no está",
+                'buy_book': "¿Dónde compro mi libro?",
+                'buy_license': "¿Dónde compro mi licencia?"
+            };
+            userQuestion = questions[key] || userQuestion;
 
             addMessage(userQuestion, true);
-
-            // 2. Show Bot's Instant Answer
-            // Simulate tiny delay for "thinking" feel
             isProcessing = true;
 
-            // Typing Indicator
             const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot typing';
+            typingDiv.className = 'message bot';
             typingDiv.innerHTML = `
-                <div class="message-avatar" style="overflow:hidden"><img src="data:image/png;base64,
+                <div class="message-avatar">
+                    <img src="https://via.placeholder.com/32/667eea/ffffff?text=R" alt="Bot">
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                     </div>
@@ -820,10 +791,7 @@
 
             setTimeout(() => {
                 typingDiv.remove();
-
-                // Map string keys in links array to real objects if needed
                 const linkObjects = data.links.map(k => resources[k]);
-
                 addMessage(data.text, false, linkObjects);
                 isProcessing = false;
             }, 600);
@@ -837,13 +805,16 @@
             isProcessing = true;
             addMessage(text, true);
             userInput.value = '';
-            userInput.style.height = 'auto';
+            autoResize();
 
-            // Typing Indicator
             const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot typing';
+            typingDiv.className = 'message bot';
             typingDiv.innerHTML = `
-                <div class="message-avatar" style="overflow:hidden"><img src="data:image/png;base64,
+                <div class="message-avatar">
+                    <img src="https://via.placeholder.com/32/667eea/ffffff?text=R" alt="Bot">
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
@@ -856,10 +827,8 @@
             try {
                 const aiResponse = await getAIResponse(text);
                 const extracted = extractLinks(aiResponse);
-
                 typingDiv.remove();
                 addMessage(extracted.cleanText, false, extracted.links);
-
             } catch (e) {
                 typingDiv.remove();
                 addMessage("⚠️ Error: " + e.message, false);
@@ -870,8 +839,6 @@
 
         async function getAIResponse(question) {
             conversationHistory.push({ role: "user", content: question });
-
-            // We send full conversation history for context
             const messagesToSend = conversationHistory.slice(-10);
 
             const response = await fetch(API_ENDPOINT, {
@@ -891,9 +858,7 @@
             }
 
             const data = await response.json();
-            // Server returns { content: [{ text: "..." }] }
             const text = data.content?.[0]?.text || "No response.";
-
             conversationHistory.push({ role: "assistant", content: text });
             return text;
         }
@@ -909,7 +874,6 @@
             return { cleanText, links };
         }
 
-        // --- HANDLERS ---
         sendBtn.addEventListener('click', () => handleSend());
         userInput.addEventListener('input', autoResize);
         userInput.addEventListener('keydown', (e) => {
@@ -918,7 +882,6 @@
                 handleSend();
             }
         });
-
     </script>
 </body>
 
