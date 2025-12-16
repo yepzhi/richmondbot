@@ -663,11 +663,11 @@
         const offlineAnswers = {
             'code_error': {
                 text: "Si tu código dice **'Already Used' (Ya utilizado)**:\n\n1. Utiliza la herramienta **Check Token** (link debajo), para que puedas ver que datos fueron los que se utilizaron el registro original, ten en cuenta que los códigos son de **un solo uso**. Si ya creaste tu cuenta, no necesitas volver a ingresarlo.\n2. Solo inicia sesión con tu usuario y contraseña.\n3. Si es la primera vez que lo usas y falla, contacta a tu profesor o a soporte.\n\n📌 **IMPORTANTE:** Al contactar a soporte, envía FOTO DEL CÓDIGO DE TU LIBRO, nombre, correo y captura del problema.\n\n⚠️ **NOTA:** Este WhatsApp atiende solo Universidades en el **Noroeste**. Resto del país: contacte a su asesor local o a **help@richmondelt.com**.",
-                links: ['login', 'soporte']
+                links: ['check_token', 'login', 'soporte']
             },
             'login_error': {
                 text: "Si no puedes entrar:\n\n1. Verifica que estés en el sitio correcto (richmondlp.com).\n2. Si olvidaste tu contraseña, usa la opción **'Forgotten password'**.\n3. Si no recuerdas tu usuario/correo utiliza la herramienta **Check Token** para que veas que correo se ultilizó en el registro y/o si tu suscripción sigue vigente.\n4. Si todo falla contacta a soporte.\n\n📌 **IMPORTANTE:** Al contactar a soporte, envía FOTO DEL CÓDIGO DE TU LIBRO, nombre, correo y captura del problema.\n\n⚠️ **NOTA:** Este WhatsApp atiende solo Universidades en el **Noroeste**. Resto del país: contacte a su asesor local o a **help@richmondelt.com**.",
-                links: ['login', 'soporte']
+                links: ['check_token', 'login', 'soporte']
             },
             'task_error': {
                 text: "Si el sistema te dice 'access denied' y no te permite contestar una tarea:\n\n1. Revisa que estés dentro de la sesión con el mismo correo donde activaste tu material.\n2. Revisa que tengas vigente tu material y que sea el mismo de la tarea asignada.\n3. Si tienes problemas técnicos: Intenta con otro navegador (Chrome/Firefox).\n4. Si aun así no te permite contestar, toma captura de pantalla y envíala a soporte.\n\n📌 **IMPORTANTE:** Al contactar a soporte, envía FOTO DEL CÓDIGO DE TU LIBRO, nombre, correo y captura del problema.\n\n⚠️ **NOTA:** Este WhatsApp atiende solo Universidades en el **Noroeste**. Resto del país: contacte a su asesor local o a **help@richmondelt.com**.",
@@ -688,9 +688,10 @@
         };
 
         const resources = {
+            check_token: { title: "Ir a Check Token", url: "https://huggingface.co/spaces/yepzhi/richmond-token-check" },
             registro: { title: "Ir a Registro", url: "https://www.richmondlp.com/register" },
             login: { title: "Ir a Login", url: "https://www.richmondlp.com" },
-            ayuda: { title: "Ayuda/Help", url: "https://rlp-ug.knowledgeowl.com/help" }, // Mantengo el original o lo cambio? User dijo "link para soporte va a ser..."
+            ayuda: { title: "Ayuda/Help", url: "https://rlp-ug.knowledgeowl.com/help" },
             soporte: { title: "Contactar Soporte (WhatsApp)", url: "https://wa.me/message/6O4USI5SGF3IA1" },
             contacto: { title: "Contacto Ventas", url: "https://richmond.com.mx/contacto/" },
             app: { title: "Descargar App", url: "https://richmondlp.com" },
