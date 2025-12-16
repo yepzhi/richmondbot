@@ -114,14 +114,19 @@
             flex-direction: column;
         }
 
-        /* Welcome View - FIXED CENTERING */
+        /* Welcome View - FIXED SCROLL & CENTERING */
         .welcome-wrapper {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100%;
-            padding: 40px 20px;
+            min-height: auto;
+            /* Prevent infinite scroll */
+            padding: 40px 20px 100px 20px;
+            /* Padding for bottom bounce */
+            margin: auto 0;
+            /* Center vertically if space allows */
+            width: 100%;
         }
 
         .welcome-container {
@@ -154,6 +159,8 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            transform: scale(1.35);
+            /* Increased size by 35% as requested */
         }
 
         .welcome-title {
