@@ -37,14 +37,55 @@ function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-// Calculate similarity score
+// Levenshtein distance for fuzzy matching
+function getLevenshteinDistance(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+    for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+// Calculate similarity score with Fuzzy Matching
 function calculateSimilarity(text, keywords) {
     const normalizedText = normalizeText(text);
+    const textWords = normalizedText.split(/\s+/); // Split user text into token words
     let score = 0;
 
     keywords.forEach(keyword => {
-        if (normalizedText.includes(normalizeText(keyword))) {
-            score += 1;
+        const normKeyword = normalizeText(keyword);
+
+        // Exact match check (substring)
+        if (normalizedText.includes(normKeyword)) {
+            score += 2; // High priority for exact phrase matches
+            return;
+        }
+
+        // Fuzzy match check (word by word)
+        // Only check single-word keywords for fuzzy matching to avoid complexity
+        if (!normKeyword.includes(' ')) {
+            for (const word of textWords) {
+                // Allow 1 typo for words > 3 chars, 2 typos for words > 6 chars
+                const dist = getLevenshteinDistance(word, normKeyword);
+                const allowedErrors = normKeyword.length > 6 ? 2 : (normKeyword.length > 3 ? 1 : 0);
+
+                if (dist <= allowedErrors && dist > 0) { // dist > 0 because exact match is handled above
+                    score += 1;
+                }
+            }
         }
     });
 
