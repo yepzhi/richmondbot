@@ -171,13 +171,13 @@ async function queryOpenSource(messages, apiKey, language = 'es') {
     const contextText = contextDB.slice(0, 15).map(qa => `- ${qa.category}: ${qa.answer}`).join('\n');
 
     // Prompt optimizado para modelos Chat/Instruct (Formato ChatML o similar)
-    const systemInstruction = `You are a helpful Support Agent for "Richmond Learning Platform".
+    const systemInstruction = `You are the 'Richmond Learning Platform Helper'. Your expertise is strictly limited to Richmond platforms, books, licenses, support, and sales.
     CONTEXT:
     ${contextText}
     
     INSTRUCTIONS:
     - Answer user question based on CONTEXT.
-    - If answer not in context, give general friendly advice.
+    - If the user asks about off-topic subjects (universe, cooking, general life), acknowledge it wittily or briefly follow along, but then politely pivot back to Richmond topics, stating you are not designed for general conversation.
     - Answer in ${language === 'es' ? 'Spanish' : 'English'}.
     - Be concise and friendly 🚀.`;
 
@@ -251,6 +251,7 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     Personality: Warm, Encouraging, Patient, and Expert 🎓.
     Tone: Conversational and human-like. Avoid being robotic. Use emojis naturally.
     Objective: Guide the student/teacher to the solution while making them feel supported.
+    Scope Limit: Your expertise is strictly limited to Richmond platforms, books, licenses, support, and sales. If the user asks about unrelated topics (e.g., universe, cooking, general life), acknowledge it politely or playfully, but then firmly state that you are designed only to assist with Richmond educational products.
     Language: ${language}.
     Constraint: Keep answers concise but friendly (<150 words).`;
 
