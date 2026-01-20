@@ -920,7 +920,8 @@
                             <span class="chip-icon">💳</span>
                             ¿Dónde compro mi libro ó licencia?
                         </button>
-                        <button class="chip-btn" onclick="askForToken()" data-i18n="chips.check_token">
+                        <button class="chip-btn" onclick="sendOfflineResponse('check_token')"
+                            data-i18n="chips.check_token">
                             <span class="chip-icon">🕵️</span>
                             Check Token / Validar Código
                         </button>
@@ -1009,6 +1010,10 @@
             'buy_license': {
                 text: "Para adquirir libros o licencias:\n\n* Sigue las indicaciones de tu profesor o coordinación de Idiomas sobre donde ó como obtener tu material/licencias.\n* **Importante** ⚠️ Los libros y licencias tienen precios especiales para tí en tu Universidad, adquiérelos donde te indiquen ya que por fuera se venden a precios públicos más altos.\n\n⚠️ **NOTA:** Este WhatsApp atiende solo Universidades en el **Noroeste**. Resto del país: contacte a su asesor local o a **help@richmondelt.com**.",
                 links: ['soporte']
+            },
+            'check_token': {
+                text: "Para validar tu código o ver el estado de tu cuenta:\n\n1. Ingresa a la herramienta **Richmond Token Check**.\n2. Escribe tu código de acceso (Access Code) de 12 a 20 caracteres.\n3. El sistema te dirá si es válido, si ya fue usado, y a qué correo está asociado.\n\n👇 Haz clic en el botón de abajo para ir a la herramienta.",
+                links: ['https://yepzhi.com/richmond-token-check/']
             }
         };
 
