@@ -1027,6 +1027,7 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const restartBtn = document.getElementById('restart-btn');
+        const langToggle = document.getElementById('langToggle');
 
         const offlineAnswers = {
             'code_error': {
@@ -1076,6 +1077,7 @@
             welcomeView.parentElement.style.display = 'none';
             header.style.opacity = '1';
             restartBtn.style.display = 'block';
+            langToggle.style.display = 'none';
         }
 
         function restartChat() {
@@ -1085,6 +1087,7 @@
             isProcessing = false;
             header.style.opacity = '0';
             restartBtn.style.display = 'none';
+            langToggle.style.display = 'flex';
             welcomeView.parentElement.style.display = 'flex';
             userInput.value = '';
             autoResize();
