@@ -516,6 +516,21 @@
             transition: all 0.2s ease;
         }
 
+        /* SERGRadio Ported Styles */
+        .serg-blue-text {
+            color: #1d4ed8;
+            /* Fallback */
+            text-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+        }
+
+        .radio-gradient-text {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 60%, #8b0000 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
         .footer-btn:hover {
             color: #60a5fa;
             border-color: #1e3a8a;
@@ -538,8 +553,8 @@
             }
 
             .chips-grid {
-                gap: 8px;
-                grid-template-columns: 1fr;
+                gap: 12px;
+                grid-template-columns: repeat(1, 1fr) !important;
             }
 
             .chip-btn {
@@ -953,9 +968,13 @@
                         </div>
                         <div class="credit-row">
                             <span class="footer-text-prefix" style="font-size: 10px; opacity: 0.8;">Listen to</span>
+                            <!-- SERGRadio Button (Adapted Small Version) -->
                             <a href="https://yepzhi.com/SERGRadio/" target="_blank" class="footer-btn"
-                                style="padding: 4px 12px; font-size: 11px; opacity: 0.9;">
-                                SERGRadio Live 🔴
+                                style="padding: 4px 12px; font-size: 11px; opacity: 1; border-color: rgba(59, 130, 246, 0.3);">
+                                <span class="serg-blue-text"
+                                    style="font-weight: 900; letter-spacing: -0.5px;">SERG</span><span
+                                    class="radio-gradient-text" style="font-weight: 900;">Radio</span>
+                                <span style="font-size: 9px; margin-left: 4px;">🔴</span>
                             </a>
                         </div>
                     </div>
