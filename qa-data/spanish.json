@@ -11,7 +11,7 @@
             "buenas tardes"
         ],
         "question": "¿Dónde encuentro mi código de acceso?",
-        "answer": "El código de acceso es un código alfanumérico de 12-20 caracteres (ej: RP4E5F678923). Lo encuentras en:\n• Portada interna del libro Richmond\n• Tarjeta incluida con el libro\n• CD-ROM o email si es producto digital\n\nSi no lo encuentras, pregunta a tu profesor.",
+        "answer": "El código de acceso es un código alfanumérico de 12-20 caracteres (ej: RP4E5F678923IUEX). Lo encuentras en:\n• Portada interna del libro Richmond\n• Tarjeta incluida con el libro\n• o email si es producto digital\n\nSi no lo encuentras, pregunta a tu profesor.",
         "links": [
             "https://richmondlp.com/register",
             "https://rlp-ug.knowledgeowl.com/help"
@@ -60,9 +60,10 @@
             "access code already used"
         ],
         "question": "Mi código dice que ya fue usado",
-        "answer": "El Access Code solo se puede usar UNA VEZ para crear una cuenta.\n\nSi ves este error:\n• Alguien ya usó ese código\n• Verifica que sea tu código correcto\n• Contacta a tu profesor para obtener un nuevo código",
+        "answer": "El Access Code solo se puede usar UNA VEZ para crear una cuenta.\n\nSi ves este error:\n• Alguien ya usó ese código\n• Verifica que sea tu código correcto\n• Contacta a tu profesor para obtener un nuevo código\n\nUsa la herramienta Check Token para visualizar que correo se registró la primera vez.",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "registro"
     },
@@ -101,7 +102,7 @@
             "libros"
         ],
         "question": "¿Dónde están mis materiales?",
-        "answer": "Los materiales se encuentran en:\n• 'Class Materials' o\n• 'My study materials'\n\nSi no aparecen, verifica que el producto esté activado en 'My Products'.",
+        "answer": "Los materiales se encuentran en:\n• 'Class Materials' o\n• 'My study materials'\n\nSi no aparecen, verifica que el producto esté activado en 'My Products'. O es posible que ya expiró tu material.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -116,11 +117,8 @@
             "descargar"
         ],
         "question": "¿Hay una aplicación móvil?",
-        "answer": "Sí, la app RLP+ está disponible para iOS y Android.\n\n• Descárgala de App Store o Google Play\n• Usa el mismo usuario/contraseña de la web\n• Permite descargar contenido para usar offline",
-        "links": [
-            "https://apps.apple.com/app/rlp/id1234567890",
-            "https://play.google.com/store/apps/details?id=com.richmond.rlp"
-        ],
+        "answer": "Sí, sin embargo para los materiales atWork, English ID, Personal Best y American Big Picture no se debe accesar desde la APP, solo se debe acceder desde el navegador.\n\nSi te aparece un error al realizar tus tareas, reintenta desde otro navegador, no desde la App.",
+        "links": [],
         "category": "app"
     },
     {
@@ -132,10 +130,11 @@
             "help"
         ],
         "question": "¿Cómo contacto a soporte?",
-        "answer": "Puedes obtener ayuda en:\n• Centro de ayuda: rlp-ug.knowledgeowl.com/help\n• Contacto: a través de richmond.com.mx\n• Tu profesor o administrador de la institución",
+        "answer": "Puedes obtener ayuda en:\n• Centro de ayuda: rlp-ug.knowledgeowl.com/help\n• Contacto: a través de richmond.com.mx\n• Tu profesor o administrador de la institución\n• WhatsApp de soporte (link abajo)",
         "links": [
             "https://rlp-ug.knowledgeowl.com/help",
-            "https://richmond.com.mx"
+            "https://richmond.com.mx",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "soporte"
     },
@@ -147,9 +146,10 @@
             "no funciona submit"
         ],
         "question": "No puedo hacer clic en Submit",
-        "answer": "Si el botón Submit no funciona:\n• Verifica tu conexión a internet\n• Actualiza tu navegador\n• Limpia caché y cookies\n• Intenta con otro navegador\n• Contacta a soporte si persiste",
+        "answer": "Si el botón Submit no funciona:\n• Intenta con otro navegador\n• Verifica tu conexión a internet\n• Actualiza tu navegador\n• Limpia caché y cookies\n• Contacta a soporte si persiste",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "soporte"
     },
@@ -192,9 +192,10 @@
             "mis datos"
         ],
         "question": "Mis datos personales están mal",
-        "answer": "Puedes editar algunos detalles en la sección de Perfil.\nSi no puedes cambiar un campo específico (como nombre de usuario o datos bloqueados), contacta a tu profesor o al administrador de tu escuela.",
+        "answer": "Puedes editar algunos detalles en la sección de Perfil.\n\nSi no puedes cambiar un campo específico (como nombre de usuario o datos bloqueados), contacta a tu profesor o al administrador de tu escuela.",
         "links": [
-            "https://richmondlp.com/profile"
+            "https://richmondlp.com/profile",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "perfil"
     },
@@ -206,9 +207,10 @@
             "nuevo email"
         ],
         "question": "¿Cómo puedo cambiar mi email?",
-        "answer": "Cambiar tu correo registrado está restringido por seguridad. Por favor contacta a Soporte Richmond o al administrador de tu institución para solicitar el cambio.",
+        "answer": "Cambiar tu correo registrado está restringido por seguridad.\n\nPor favor contacta a Soporte Richmond o al administrador de tu institución para solicitar el cambio.",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "perfil"
     },
@@ -220,8 +222,10 @@
             "me equivoqué de clase"
         ],
         "question": "Estoy en la clase incorrecta",
-        "answer": "Solo tu profesor puede moverte a la clase correcta.\nPídele a tu profesor que te elimine de la clase incorrecta y te agregue a la correcta, o que te dé el Class Code correcto.",
-        "links": [],
+        "answer": "Solo el administrador puede moverte a la clase correcta.\n\nPídele a tu administrador que te elimine de la clase incorrecta y te agregue a la correcta, o que te dé el Class Code correcto.",
+        "links": [
+            "https://wa.me/message/6O4USI5SGF3IA1"
+        ],
         "category": "clases"
     },
     {
@@ -233,7 +237,7 @@
             "caduca"
         ],
         "question": "¿Hasta cuándo es válida mi suscripción?",
-        "answer": "Puedes ver la fecha de expiración en la sección 'My Products'. Típicamente, el acceso dura 12 meses después de la activación, pero puede variar según el producto.",
+        "answer": "Puedes ver la fecha de expiración en la sección 'My Products'.\n\nTípicamente, el acceso dura 6 ó 12 meses después de la activación, pero puede variar según el producto.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -248,7 +252,7 @@
             "self study"
         ],
         "question": "¿Cómo estudio por mi cuenta?",
-        "answer": "Puedes acceder a contenido de autoestudio en la sección 'My Study Materials'. Ahí encontrarás práctica extra, audios y recursos que no requieren tarea del profesor.",
+        "answer": "Puedes acceder a contenido de autoestudio en la sección 'My Study Materials'.\n\nAhí encontrarás práctica extra, audios y recursos que no requieren tarea del profesor.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -277,24 +281,9 @@
             "mensajes"
         ],
         "question": "¿Dónde veo mis notificaciones?",
-        "answer": "Haz clic en el ícono de la Campana en la barra superior. Verás alertas de:\n• Nuevas tareas\n• Mensajes del profesor\n• Actividades calificadas",
+        "answer": "Haz clic en el ícono de la Campana en la barra superior.\n\nVerás alertas de:\n• Nuevas tareas\n• Mensajes del profesor\n• Actividades calificadas",
         "links": [],
         "category": "navegación"
-    },
-    {
-        "keywords": [
-            "app padres",
-            "agregar hijo",
-            "vincular estudiante",
-            "richmond parents",
-            "padre"
-        ],
-        "question": "¿Cómo agrego un estudiante en la App de Padres?",
-        "answer": "En la Richmond Parents App:\n1. Inicia sesión.\n2. Clic en 'Add Student'.\n3. Ingresa el User ID del estudiante (NO el Access Code).\nEl User ID está en el perfil del estudiante en la web.",
-        "links": [
-            "https://rlp-ug.knowledgeowl.com/help/richmond-parents-app"
-        ],
-        "category": "padres"
     },
     {
         "keywords": [
@@ -320,7 +309,7 @@
             "pantalla blanca"
         ],
         "question": "Mi libro o contenido no abre",
-        "answer": "Tu navegador puede estar bloqueando ventanas emergentes (pop-ups).\n• Busca un ícono de 'Pop-up blocked' en la barra de direcciones.\n• Haz clic y selecciona 'Permitir siempre pop-ups de este sitio'.\n• Recarga la página.",
+        "answer": "Tu navegador puede estar bloqueando ventanas emergentes (pop-ups).\n\n• Busca un ícono de 'Pop-up blocked' en la barra de direcciones.\n• Haz clic y selecciona 'Permitir siempre pop-ups de este sitio'.\n• Recarga la página.",
         "links": [],
         "category": "técnico"
     },
@@ -360,7 +349,7 @@
             "promedio"
         ],
         "question": "¿Dónde veo mis calificaciones?",
-        "answer": "Ve a la sección 'Markbook' o 'My Scores'.\nPuedes filtrar por clase o producto para ver tu progreso y puntajes detallados de cada actividad.",
+        "answer": "Ve a la sección 'Markbook' o 'My Scores'.\n\nPuedes filtrar por clase o producto para ver tu progreso y puntajes detallados de cada actividad.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -386,7 +375,7 @@
             "usuario olvidado"
         ],
         "question": "Olvidé mi nombre de usuario",
-        "answer": "Puedes usar tu correo registrado para iniciar sesión en lugar de tu usuario.\nSi no recuerdas ninguno, pídele a tu profesor que revise su lista de clase para darte tu usuario.",
+        "answer": "Puedes usar tu correo registrado para iniciar sesión en lugar de tu usuario.\n\nSi no recuerdas ninguno, pídele a tu profesor que revise su lista de clase para darte tu usuario.\n\nTambién puedes usar la herramienta Check Token para revisar que correo es el que utilizaste en el registro original.",
         "links": [
             "https://richmondlp.com"
         ],

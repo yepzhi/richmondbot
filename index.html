@@ -528,6 +528,87 @@
                 height: -webkit-fill-available;
             }
         }
+
+        /* FAQ Dropdown Styles */
+        .faq-container {
+            position: relative;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .faq-btn {
+            width: 100%;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 14px 16px;
+            border-radius: 14px;
+            text-align: left;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .faq-btn:active {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .faq-btn .faq-icon {
+            font-size: 20px;
+        }
+
+        .faq-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-btn.open .faq-arrow {
+            transform: rotate(180deg);
+        }
+
+        .faq-dropdown {
+            display: none;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            margin-top: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .faq-dropdown.open {
+            display: block;
+        }
+
+        .faq-category {
+            padding: 12px 16px 6px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(102, 126, 234, 0.8);
+            letter-spacing: 0.5px;
+        }
+
+        .faq-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .faq-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 
@@ -616,6 +697,85 @@
                             <span class="chip-icon">🕵️</span>
                             Check Token / Validar Código
                         </button>
+                    </div>
+
+                    <!-- FAQ Dropdown -->
+                    <div class="faq-container">
+                        <button class="faq-btn" onclick="toggleFAQ()">
+                            <span style="display: flex; align-items: center; gap: 10px;">
+                                <span class="faq-icon">❓</span>
+                                <span>Preguntas Frecuentes (FAQ)</span>
+                            </span>
+                            <span class="faq-arrow">▼</span>
+                        </button>
+                        <div class="faq-dropdown" id="faq-dropdown">
+                            <div class="faq-category">📝 Registro</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde encuentro mi código de acceso?')">
+                                ¿Dónde encuentro mi código de acceso?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo me registro en la plataforma?')">¿Cómo
+                                me registro en la plataforma?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Mi código dice que ya fue usado')">Mi código
+                                dice que ya fue usado</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Dice que mi email ya existe')">Dice que mi
+                                email ya existe</div>
+
+                            <div class="faq-category">🔐 Acceso</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo inicio sesión?')">¿Cómo inicio sesión?
+                            </div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Olvidé mi nombre de usuario')">Olvidé mi
+                                nombre de usuario</div>
+
+                            <div class="faq-category">📚 Tareas y Materiales</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis tareas?')">¿Dónde veo mis
+                                tareas?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde están mis materiales?')">¿Dónde están
+                                mis materiales?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo estudio por mi cuenta?')">¿Cómo
+                                estudio por mi cuenta?</div>
+                            <div class="faq-item"
+                                onclick="sendFAQQuestion('¿Por qué mi respuesta correcta marca error?')">¿Por qué mi
+                                respuesta correcta marca error?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis calificaciones?')">¿Dónde veo
+                                mis calificaciones?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis notificaciones?')">¿Dónde veo
+                                mis notificaciones?</div>
+
+                            <div class="faq-category">📖 Productos y Clases</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo activo un nuevo producto?')">¿Cómo
+                                activo un nuevo producto?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo me uno a una clase?')">¿Cómo me uno a
+                                una clase?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Estoy en la clase incorrecta')">Estoy en la
+                                clase incorrecta</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Hasta cuándo es válida mi suscripción?')">
+                                ¿Hasta cuándo es válida mi suscripción?</div>
+
+                            <div class="faq-category">👤 Perfil</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Mis datos personales están mal')">Mis datos
+                                personales están mal</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo puedo cambiar mi email?')">¿Cómo puedo
+                                cambiar mi email?</div>
+
+                            <div class="faq-category">📱 App y Soporte</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Hay una aplicación móvil?')">¿Hay una
+                                aplicación móvil?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo contacto a soporte?')">¿Cómo contacto
+                                a soporte?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('No puedo hacer clic en Submit')">No puedo
+                                hacer clic en Submit</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo le envío mensaje a mi profesor?')">
+                                ¿Cómo le envío mensaje a mi profesor?</div>
+
+                            <div class="faq-category">⚙️ Técnico</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('¿Qué navegador debo usar?')">¿Qué navegador
+                                debo usar?</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('Mi libro o contenido no abre')">Mi libro o
+                                contenido no abre</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('No puedo escuchar el audio')">No puedo
+                                escuchar el audio</div>
+                            <div class="faq-item" onclick="sendFAQQuestion('La plataforma está lenta o no carga')">La
+                                plataforma está lenta o no carga</div>
+                        </div>
                     </div>
 
                     <div class="bilingual-note">
@@ -840,6 +1000,22 @@
         function openTokenChecker() {
             // Open external tool
             window.open("https://huggingface.co/spaces/yepzhi/richmond-token-check", "_blank");
+        }
+
+        function toggleFAQ() {
+            const dropdown = document.getElementById('faq-dropdown');
+            const btn = document.querySelector('.faq-btn');
+            dropdown.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        function sendFAQQuestion(question) {
+            // Close the dropdown
+            document.getElementById('faq-dropdown').classList.remove('open');
+            document.querySelector('.faq-btn').classList.remove('open');
+
+            // Send the question to the AI
+            handleSend(question);
         }
 
         async function handleSend(manualText = null) {

@@ -11,7 +11,7 @@
             "good morning"
         ],
         "question": "Where can I find my access code?",
-        "answer": "The access code is an alphanumeric code of 12-20 characters (e.g., RP4E5F678923). You can find it:\n• Inside cover of your Richmond book\n• Card included with the book\n• CD-ROM or email if digital product\n\nIf you can't find it, ask your teacher.",
+        "answer": "The access code is an alphanumeric code of 12-20 characters (e.g., RP4E5F678923IUEX). You can find it:\n• Inside cover of your Richmond book\n• Card included with the book\n• or email if digital product\n\nIf you can't find it, ask your teacher.",
         "links": [
             "https://richmondlp.com/register",
             "https://rlp-ug.knowledgeowl.com/help"
@@ -38,7 +38,9 @@
             "login",
             "sign in",
             "access",
-            "password"
+            "password",
+            "can't log in",
+            "can't enter"
         ],
         "question": "How do I log in?",
         "answer": "Log in at www.richmondlp.com with your email and password.\n\nIf you forgot your password, use the 'Forgotten password' option at login.",
@@ -54,9 +56,10 @@
             "access code already used"
         ],
         "question": "My code says it's already been used",
-        "answer": "The Access Code can only be used ONCE to create an account.\n\nIf you see this error:\n• Someone already used that code\n• Verify it's your correct code\n• Contact your teacher for a new code",
+        "answer": "The Access Code can only be used ONCE to create an account.\n\nIf you see this error:\n• Someone already used that code\n• Verify it's your correct code\n• Contact your teacher for a new code\n\nUse the Check Token tool to see which email was registered the first time.",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "registration"
     },
@@ -94,7 +97,7 @@
             "study materials"
         ],
         "question": "Where are my materials?",
-        "answer": "Materials are found in:\n• 'Class Materials' or\n• 'My study materials'\n\nIf they don't appear, verify the product is activated in 'My Products'.",
+        "answer": "Materials are found in:\n• 'Class Materials' or\n• 'My study materials'\n\nIf they don't appear, verify the product is activated in 'My Products'. Or your material may have expired.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -108,11 +111,8 @@
             "application"
         ],
         "question": "Is there a mobile app?",
-        "answer": "Yes, the RLP+ app is available for iOS and Android.\n\n• Download from App Store or Google Play\n• Use the same username/password as the web\n• Allows downloading content for offline use",
-        "links": [
-            "https://apps.apple.com/app/rlp/id1234567890",
-            "https://play.google.com/store/apps/details?id=com.richmond.rlp"
-        ],
+        "answer": "Yes, however for atWork, English ID, Personal Best and American Big Picture materials, you should NOT access from the APP, only from the browser.\n\nIf you get an error when doing your tasks, try again from another browser, not from the App.",
+        "links": [],
         "category": "app"
     },
     {
@@ -122,10 +122,11 @@
             "contact"
         ],
         "question": "How do I contact support?",
-        "answer": "You can get help at:\n• Help center: rlp-ug.knowledgeowl.com/help\n• Contact: through richmond.com.mx\n• Your teacher or institution administrator",
+        "answer": "You can get help at:\n• Help center: rlp-ug.knowledgeowl.com/help\n• Contact: through richmond.com.mx\n• Your teacher or institution administrator\n• Support WhatsApp (link below)",
         "links": [
             "https://rlp-ug.knowledgeowl.com/help",
-            "https://richmond.com.mx"
+            "https://richmond.com.mx",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "support"
     },
@@ -137,9 +138,10 @@
             "submit not working"
         ],
         "question": "I can't click Submit",
-        "answer": "If the Submit button doesn't work:\n• Check your internet connection\n• Update your browser\n• Clear cache and cookies\n• Try another browser\n• Contact support if it persists",
+        "answer": "If the Submit button doesn't work:\n• Try another browser\n• Check your internet connection\n• Update your browser\n• Clear cache and cookies\n• Contact support if it persists",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "support"
     },
@@ -182,9 +184,10 @@
             "incorrect data"
         ],
         "question": "My personal data is wrong",
-        "answer": "You can edit some details in your Profile section.\nIf you cannot change a specific field (like username or locked data), please contact your teacher or institution administrator to fix it.",
+        "answer": "You can edit some details in your Profile section.\n\nIf you cannot change a specific field (like username or locked data), please contact your teacher or institution administrator to fix it.",
         "links": [
-            "https://richmondlp.com/profile"
+            "https://richmondlp.com/profile",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "profile"
     },
@@ -196,9 +199,10 @@
             "new email"
         ],
         "question": "How can I change my email?",
-        "answer": "Changing your registered email is restricted for security. Please contact Richmond Support or your institution administrator to request an email change.",
+        "answer": "Changing your registered email is restricted for security.\n\nPlease contact Richmond Support or your institution administrator to request an email change.",
         "links": [
-            "https://rlp-ug.knowledgeowl.com/help"
+            "https://rlp-ug.knowledgeowl.com/help",
+            "https://wa.me/message/6O4USI5SGF3IA1"
         ],
         "category": "profile"
     },
@@ -210,8 +214,10 @@
             "change class"
         ],
         "question": "I am in the wrong class",
-        "answer": "Only your teacher can move you to the correct class.\nPlease ask your teacher to remove you from the wrong class and add you to the correct one, or provide the correct Class Code.",
-        "links": [],
+        "answer": "Only the administrator can move you to the correct class.\n\nPlease ask your administrator to remove you from the wrong class and add you to the correct one, or provide the correct Class Code.",
+        "links": [
+            "https://wa.me/message/6O4USI5SGF3IA1"
+        ],
         "category": "classes"
     },
     {
@@ -223,7 +229,7 @@
             "expiration"
         ],
         "question": "Until when is my subscription valid?",
-        "answer": "You can check your subscription expiration date in the 'My Products' section. Typically, access lasts for 12 months after activation, but this may vary by product.",
+        "answer": "You can check your subscription expiration date in the 'My Products' section.\n\nTypically, access lasts for 6 or 12 months after activation, but this may vary by product.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -238,7 +244,7 @@
             "self-study"
         ],
         "question": "How do I study on my own?",
-        "answer": "You can access self-study content in the 'My Study Materials' section. Here you will find extra practice, audios, and resources that do not require a teacher's assignment.",
+        "answer": "You can access self-study content in the 'My Study Materials' section.\n\nHere you will find extra practice, audios, and resources that do not require a teacher's assignment.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -267,24 +273,9 @@
             "messages"
         ],
         "question": "Where do I see my notifications?",
-        "answer": "Click the Bell icon in the top header. You will see alerts for:\n• New assignments\n• Messages from teacher\n• Graded activities",
+        "answer": "Click the Bell icon in the top header.\n\nYou will see alerts for:\n• New assignments\n• Messages from teacher\n• Graded activities",
         "links": [],
         "category": "navigation"
-    },
-    {
-        "keywords": [
-            "parents app",
-            "add child",
-            "link student",
-            "parent",
-            "app for parents"
-        ],
-        "question": "How do I add a student in Parents App?",
-        "answer": "In the Richmond Parents App:\n1. Log in.\n2. Click 'Add Student'.\n3. Enter the Student's User ID (not the Access Code).\nYou can find the User ID in the student's profile on the web.",
-        "links": [
-            "https://rlp-ug.knowledgeowl.com/help/richmond-parents-app"
-        ],
-        "category": "parents"
     },
     {
         "keywords": [
@@ -309,7 +300,7 @@
             "white page"
         ],
         "question": "My book or content is not opening",
-        "answer": "Your browser might be blocking pop-ups.\n• Look for a 'Pop-up blocked' icon in the address bar.\n• Click it and select 'Always allow pop-ups from this site'.\n• Reload the page.",
+        "answer": "Your browser might be blocking pop-ups.\n\n• Look for a 'Pop-up blocked' icon in the address bar.\n• Click it and select 'Always allow pop-ups from this site'.\n• Reload the page.",
         "links": [],
         "category": "technical"
     },
@@ -349,7 +340,7 @@
             "markbook"
         ],
         "question": "Where can I see my grades?",
-        "answer": "Go to the 'Markbook' or 'My Scores' section.\nYou can filter by class or product to see your progress and detailed scores for each activity.",
+        "answer": "Go to the 'Markbook' or 'My Scores' section.\n\nYou can filter by class or product to see your progress and detailed scores for each activity.",
         "links": [
             "https://richmondlp.com"
         ],
@@ -375,7 +366,7 @@
             "forgot login"
         ],
         "question": "I forgot my username",
-        "answer": "You can use your registered email address to log in instead of your username.\nIf you don't remember either, ask your teacher to check their class list for your username.",
+        "answer": "You can use your registered email address to log in instead of your username.\n\nIf you don't remember either, ask your teacher to check their class list for your username.\n\nYou can also use the Check Token tool to see which email you used in the original registration.",
         "links": [
             "https://richmondlp.com"
         ],
