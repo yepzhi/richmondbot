@@ -918,7 +918,7 @@
                         " data-i18n="welcome.subtitle">¿Cómo puedo ayudarte hoy?</p>
                     </div>
 
-                    <div class="chips-grid">
+                    <div class="chips-grid" id="chips-grid">
                         <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
                             <span class="chip-icon">🚫</span>
                             <span data-i18n="chips.code_error">Mi código ya está utilizado, no es válido</span>
@@ -971,17 +971,16 @@
                             </a>
                         </div>
                         <div class="credit-row">
-                            <!-- SERGRadio Button (Adapted Small Version with Arrow) -->
+                            <!-- SERGRadio Button -->
                             <a href="https://yepzhi.com/SERGRadio/" target="_blank" class="footer-btn"
-                                style="padding: 4px 10px; font-size: 11px; opacity: 1; border-color: rgba(59, 130, 246, 0.3);">
+                                style="padding: 4px 10px; font-size: 11px; border-color: rgba(59, 130, 246, 0.3); display: flex; align-items: center;">
                                 <span style="font-weight: 500; opacity: 0.8; margin-right: 4px; color: #9ca3af;">Listen
-                                    to</span>
-                                <span class="serg-blue-text"
-                                    style="font-weight: 900; letter-spacing: -1px; margin-right: 0;">SERG</span><span
+                                    to</span><span class="serg-blue-text"
+                                    style="font-weight: 900; letter-spacing: -1px;">SERG</span><span
                                     class="radio-gradient-text"
-                                    style="font-weight: 900; margin-left: -2px; letter-spacing: -1px;">Radio</span>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                    style="font-weight: 900; letter-spacing: -1px;">Radio</span><svg width="12"
+                                    height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round"
                                     style="margin-left: 4px; opacity: 0.8;">
                                     <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                                 </svg>
@@ -1029,6 +1028,22 @@
         const sendBtn = document.getElementById('send-btn');
         const restartBtn = document.getElementById('restart-btn');
         const langToggle = document.getElementById('langToggle');
+        const chipsGrid = document.getElementById('chips-grid');
+
+        // Force single-column layout on mobile (JS approach since CSS isn't applying)
+        function applyMobileLayout() {
+            if (window.innerWidth <= 768) {
+                chipsGrid.style.display = 'flex';
+                chipsGrid.style.flexDirection = 'column';
+                chipsGrid.style.gap = '12px';
+            } else {
+                chipsGrid.style.display = 'grid';
+                chipsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                chipsGrid.style.gap = '16px';
+            }
+        }
+        applyMobileLayout();
+        window.addEventListener('resize', applyMobileLayout);
 
         const offlineAnswers = {
             'code_error': {
