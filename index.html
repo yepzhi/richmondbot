@@ -535,8 +535,9 @@
             }
 
             .chip-btn {
-                font-size: 12px;
-                padding: 12px 10px;
+                font-size: 13px;
+                padding: 16px 12px;
+                min-height: 110px;
             }
 
             .chip-icon {
@@ -921,7 +922,8 @@
                             ¿Dónde compro mi libro ó licencia?
                         </button>
                         <button class="chip-btn" onclick="sendOfflineResponse('check_token')"
-                            data-i18n="chips.check_token">
+                            data-i18n="chips.check_token"
+                            style="grid-column: span 2; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15);">
                             <span class="chip-icon">🕵️</span>
                             Check Token / Validar Código
                         </button>
