@@ -971,20 +971,18 @@
                             </a>
                         </div>
                         <div class="credit-row">
-                            <!-- SERGRadio Button -->
+                            <!-- SERGRadio Button - Exact copy from hopRadio scaled down -->
                             <a href="https://yepzhi.com/SERGRadio/" target="_blank" class="footer-btn"
-                                style="padding: 4px 10px; font-size: 11px; border-color: rgba(59, 130, 246, 0.3); display: flex; align-items: center;">
-                                <span style="font-weight: 500; opacity: 0.8; margin-right: 4px; color: #9ca3af;">Listen
-                                    to</span><span class="serg-blue-text"
-                                    style="font-weight: 900; letter-spacing: -1px;">SERG</span><span
-                                    class="radio-gradient-text"
-                                    style="font-weight: 900; letter-spacing: -1px;">Radio</span><svg width="12"
-                                    height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    style="margin-left: 4px; opacity: 0.8;">
+                                style="padding: 4px 10px; font-size: 11px; border-color: rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 4px;"><span
+                                    style="font-weight: 600; opacity: 0.8; color: #9ca3af; text-transform: uppercase; font-size: 9px; letter-spacing: 1px;">Listen</span><span
+                                    style="font-weight: 900; letter-spacing: -1px;"
+                                    class="serg-blue-text">SERG</span><span
+                                    style="font-weight: 900; letter-spacing: -1px;"
+                                    class="radio-gradient-text">Radio</span><svg width="12" height="12"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
                                     <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                                </svg>
-                            </a>
+                                </svg></a>
                         </div>
                     </div>
                 </div>
@@ -1035,11 +1033,33 @@
             if (window.innerWidth <= 768) {
                 chipsGrid.style.display = 'flex';
                 chipsGrid.style.flexDirection = 'column';
-                chipsGrid.style.gap = '12px';
+                chipsGrid.style.gap = '8px';
+                // Make chips smaller on mobile
+                document.querySelectorAll('.chip-btn').forEach(btn => {
+                    btn.style.padding = '10px 12px';
+                    btn.style.minHeight = '70px';
+                    btn.style.fontSize = '12px';
+                });
+                document.querySelectorAll('.chip-icon').forEach(icon => {
+                    icon.style.width = '24px';
+                    icon.style.height = '24px';
+                    icon.style.fontSize = '14px';
+                });
             } else {
                 chipsGrid.style.display = 'grid';
                 chipsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
                 chipsGrid.style.gap = '16px';
+                // Reset chip sizes
+                document.querySelectorAll('.chip-btn').forEach(btn => {
+                    btn.style.padding = '';
+                    btn.style.minHeight = '';
+                    btn.style.fontSize = '';
+                });
+                document.querySelectorAll('.chip-icon').forEach(icon => {
+                    icon.style.width = '';
+                    icon.style.height = '';
+                    icon.style.fontSize = '';
+                });
             }
         }
         applyMobileLayout();
