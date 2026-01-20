@@ -609,6 +609,167 @@
         .faq-item:last-child {
             border-bottom: none;
         }
+
+        /* Language Toggle - Floating Button */
+        .lang-toggle {
+            position: fixed;
+            top: 70px;
+            /* Below Restart Button (16px + ~40px) */
+            right: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .lang-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .lang-toggle {
+                top: 60px;
+                right: 12px;
+            }
+        }
+
+        /* FAQ Modal Overlay */
+        .faq-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .faq-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .faq-modal {
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-overlay.active .faq-modal {
+            transform: translateY(0);
+        }
+
+        .faq-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .faq-content {
+            padding: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .faq-category-header {
+            padding: 16px 20px 8px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #818cf8;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.02);
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .faq-list-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .faq-list-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 24px;
+        }
+
+        .faq-list-item::after {
+            content: '→';
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.2s;
+        }
+
+        .faq-list-item:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
     </style>
 </head>
 
@@ -621,7 +782,7 @@
             </div>
             <div class="header-text">
                 <h1>Richmond Bot</h1>
-                <p>Support Assistant</p>
+                <p data-i18n="header.subtitle">Support Assistant</p>
             </div>
         </div>
     </div>
@@ -629,9 +790,15 @@
     </div>
 
     <!-- Restart Button -->
-    <button id="restart-btn" class="restart-button" onclick="restartChat()">
+    <button id="restart-btn" class="restart-button" onclick="restartChat()" data-i18n="header.restart">
         🏠 Restart Chat
     </button>
+
+    <!-- Language Toggle -->
+    <a href="#" class="lang-toggle" id="langToggle">
+        <span class="lang-flag">🇺🇸</span><span class="lang-text"
+            style="font-weight:700; font-size:12px; margin-left:4px;">ENG</span>
+    </a>
 
     <!-- Developer Credit -->
     <div class="developer-credit">
@@ -659,126 +826,60 @@
                             line-height: 1.1;
                             letter-spacing: -0.02em;
                             padding-bottom: 15px;
-                        ">Richmond Chatbot<br>University Support 🚀</h1>
+                        " data-i18n="welcome.title">Richmond Chatbot<br>University Support 🚀</h1>
                         <p style="
                             color: #94a3b8;
                             font-size: 1.2rem;
                             margin-top: 10px;
                             font-weight: 500;
-                        ">¿Cómo puedo ayudarte hoy?</p>
+                        " data-i18n="welcome.subtitle">¿Cómo puedo ayudarte hoy?</p>
                     </div>
 
                     <div class="chips-grid">
-                        <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('code_error')"
+                            data-i18n="chips.code_error">
                             <span class="chip-icon">🚫</span>
                             Mi código ya está utilizado, no es válido
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('login_error')"
+                            data-i18n="chips.login_error">
                             <span class="chip-icon">🔐</span>
                             No puedo entrar a la plataforma
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('task_error')"
+                            data-i18n="chips.task_error">
                             <span class="chip-icon">📝</span>
                             No puedo hacer una tarea
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('material_missing')"
+                            data-i18n="chips.material_missing">
                             <span class="chip-icon">📚</span>
                             Mi material ya no está
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_book')" data-i18n="chips.buy_book">
                             <span class="chip-icon">📖</span>
                             ¿No me aparece la tarea en mi plataforma?
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_license')"
+                            data-i18n="chips.buy_license">
                             <span class="chip-icon">💳</span>
                             ¿Dónde compro mi libro ó licencia?
                         </button>
-                        <button class="chip-btn" onclick="askForToken()">
+                        <button class="chip-btn" onclick="askForToken()" data-i18n="chips.check_token">
                             <span class="chip-icon">🕵️</span>
                             Check Token / Validar Código
                         </button>
-                    </div>
-
-                    <!-- FAQ Dropdown -->
-                    <div class="faq-container">
-                        <button class="faq-btn" onclick="toggleFAQ()">
-                            <span style="display: flex; align-items: center; gap: 10px;">
-                                <span class="faq-icon">❓</span>
-                                <span>Preguntas Frecuentes (FAQ)</span>
-                            </span>
-                            <span class="faq-arrow">▼</span>
+                        <!-- New FAQ Chip -->
+                        <button class="chip-btn" onclick="openFAQ()"
+                            style="grid-column: span 2; justify-content: center; background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3);">
+                            <span class="chip-icon" style="background: rgba(99, 102, 241, 0.3);">❓</span>
+                            <span data-i18n="faq.btn">Preguntas Frecuentes (FAQ)</span>
                         </button>
-                        <div class="faq-dropdown" id="faq-dropdown">
-                            <div class="faq-category">📝 Registro</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde encuentro mi código de acceso?')">
-                                ¿Dónde encuentro mi código de acceso?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo me registro en la plataforma?')">¿Cómo
-                                me registro en la plataforma?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Mi código dice que ya fue usado')">Mi código
-                                dice que ya fue usado</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Dice que mi email ya existe')">Dice que mi
-                                email ya existe</div>
-
-                            <div class="faq-category">🔐 Acceso</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo inicio sesión?')">¿Cómo inicio sesión?
-                            </div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Olvidé mi nombre de usuario')">Olvidé mi
-                                nombre de usuario</div>
-
-                            <div class="faq-category">📚 Tareas y Materiales</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis tareas?')">¿Dónde veo mis
-                                tareas?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde están mis materiales?')">¿Dónde están
-                                mis materiales?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo estudio por mi cuenta?')">¿Cómo
-                                estudio por mi cuenta?</div>
-                            <div class="faq-item"
-                                onclick="sendFAQQuestion('¿Por qué mi respuesta correcta marca error?')">¿Por qué mi
-                                respuesta correcta marca error?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis calificaciones?')">¿Dónde veo
-                                mis calificaciones?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Dónde veo mis notificaciones?')">¿Dónde veo
-                                mis notificaciones?</div>
-
-                            <div class="faq-category">📖 Productos y Clases</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo activo un nuevo producto?')">¿Cómo
-                                activo un nuevo producto?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo me uno a una clase?')">¿Cómo me uno a
-                                una clase?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Estoy en la clase incorrecta')">Estoy en la
-                                clase incorrecta</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Hasta cuándo es válida mi suscripción?')">
-                                ¿Hasta cuándo es válida mi suscripción?</div>
-
-                            <div class="faq-category">👤 Perfil</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Mis datos personales están mal')">Mis datos
-                                personales están mal</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo puedo cambiar mi email?')">¿Cómo puedo
-                                cambiar mi email?</div>
-
-                            <div class="faq-category">📱 App y Soporte</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Hay una aplicación móvil?')">¿Hay una
-                                aplicación móvil?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo contacto a soporte?')">¿Cómo contacto
-                                a soporte?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('No puedo hacer clic en Submit')">No puedo
-                                hacer clic en Submit</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Cómo le envío mensaje a mi profesor?')">
-                                ¿Cómo le envío mensaje a mi profesor?</div>
-
-                            <div class="faq-category">⚙️ Técnico</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('¿Qué navegador debo usar?')">¿Qué navegador
-                                debo usar?</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('Mi libro o contenido no abre')">Mi libro o
-                                contenido no abre</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('No puedo escuchar el audio')">No puedo
-                                escuchar el audio</div>
-                            <div class="faq-item" onclick="sendFAQQuestion('La plataforma está lenta o no carga')">La
-                                plataforma está lenta o no carga</div>
-                        </div>
                     </div>
 
-                    <div class="bilingual-note">
+                    <!-- Old FAQ section removed -->
+
+                    <div class="bilingual-note" data-i18n="welcome.note">
                         🌐 Este chatbot es bilingüe (Español/English)
                     </div>
                 </div>
@@ -791,7 +892,8 @@
         <!-- Input -->
         <div class="input-area">
             <div class="input-wrapper">
-                <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"></textarea>
+                <textarea id="user-input" placeholder="Escribe tu mensaje..." rows="1"
+                    data-i18n="input.placeholder"></textarea>
             </div>
             <button id="send-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -803,6 +905,7 @@
         </div>
     </div>
 
+    <script src="translations.js"></script>
     <script>
         // --- CONFIGURATION ---
         const API_ENDPOINT = 'https://yepzhi-richmondbot.hf.space/api/chat';
@@ -1002,17 +1105,10 @@
             window.open("https://huggingface.co/spaces/yepzhi/richmond-token-check", "_blank");
         }
 
-        function toggleFAQ() {
-            const dropdown = document.getElementById('faq-dropdown');
-            const btn = document.querySelector('.faq-btn');
-            dropdown.classList.toggle('open');
-            btn.classList.toggle('open');
-        }
 
         function sendFAQQuestion(question) {
-            // Close the dropdown
-            document.getElementById('faq-dropdown').classList.remove('open');
-            document.querySelector('.faq-btn').classList.remove('open');
+            // Close the FAQ Overlay
+            closeFAQ();
 
             // Send the question to the AI
             handleSend(question);
@@ -1108,6 +1204,106 @@
                 handleSend();
             }
         });
+    </script>
+    <!-- FAQ Modal Overlay -->
+    <div class="faq-overlay" id="faqOverlay" onclick="closeFAQ(event)">
+        <div class="faq-modal">
+            <div class="faq-header">
+                <div class="faq-title">
+                    <span>❓</span>
+                    <span data-i18n="faq.btn">Preguntas Frecuentes</span>
+                </div>
+                <button class="close-btn" onclick="closeFAQ()">×</button>
+            </div>
+            <div class="faq-content">
+                <!-- Registration -->
+                <div class="faq-category-header" data-i18n="faq.cat_registro">📝 Registro</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Dónde encuentro mi código de acceso?')"
+                    data-i18n="faq.q_code_find">¿Dónde encuentro mi código de acceso?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo me registro en la plataforma?')"
+                    data-i18n="faq.q_register">¿Cómo me registro en la plataforma?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Mi código dice que ya fue usado')"
+                    data-i18n="faq.q_code_used">Mi código dice que ya fue usado</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Dice que mi email ya existe')"
+                    data-i18n="faq.q_email_exists">Dice que mi email ya existe</div>
+
+                <!-- Access -->
+                <div class="faq-category-header" data-i18n="faq.cat_acceso">🔐 Acceso</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo inicio sesión?')" data-i18n="faq.q_login">
+                    ¿Cómo inicio sesión?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Olvidé mi nombre de usuario')"
+                    data-i18n="faq.q_forgot_user">Olvidé mi nombre de usuario</div>
+
+                <!-- Homework -->
+                <div class="faq-category-header" data-i18n="faq.cat_tareas">📚 Tareas y Materiales</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Dónde veo mis tareas?')"
+                    data-i18n="faq.q_see_tasks">¿Dónde veo mis tareas?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Dónde están mis materiales?')"
+                    data-i18n="faq.q_materials">¿Dónde están mis materiales?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo estudio por mi cuenta?')"
+                    data-i18n="faq.q_study">¿Cómo estudio por mi cuenta?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Por qué mi respuesta correcta marca error?')"
+                    data-i18n="faq.q_wrong_answer">¿Por qué mi respuesta correcta marca error?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Dónde veo mis calificaciones?')"
+                    data-i18n="faq.q_grades">¿Dónde veo mis calificaciones?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Dónde veo mis notificaciones?')"
+                    data-i18n="faq.q_notifications">¿Dónde veo mis notificaciones?</div>
+
+                <!-- Products -->
+                <div class="faq-category-header" data-i18n="faq.cat_productos">📖 Productos y Clases</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo activo un nuevo producto?')"
+                    data-i18n="faq.q_activate_prod">¿Cómo activo un nuevo producto?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo me uno a una clase?')"
+                    data-i18n="faq.q_join_class">¿Cómo me uno a una clase?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Estoy en la clase incorrecta')"
+                    data-i18n="faq.q_wrong_class">Estoy en la clase incorrecta</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Hasta cuándo es válida mi suscripción?')"
+                    data-i18n="faq.q_sub_valid">¿Hasta cuándo es válida mi suscripción?</div>
+
+                <!-- Profile -->
+                <div class="faq-category-header" data-i18n="faq.cat_perfil">👤 Perfil</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Mis datos personales están mal')"
+                    data-i18n="faq.q_data_wrong">Mis datos personales están mal</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo puedo cambiar mi email?')"
+                    data-i18n="faq.q_change_email">¿Cómo puedo cambiar mi email?</div>
+
+                <!-- App -->
+                <div class="faq-category-header" data-i18n="faq.cat_app">📱 App y Soporte</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Hay una aplicación móvil?')"
+                    data-i18n="faq.q_app">¿Hay una aplicación móvil?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo contacto a soporte?')"
+                    data-i18n="faq.q_support">¿Cómo contacto a soporte?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('No puedo hacer clic en Submit')"
+                    data-i18n="faq.q_submit_error">No puedo hacer clic en Submit</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Cómo le envío mensaje a mi profesor?')"
+                    data-i18n="faq.q_msg_teacher">¿Cómo le envío mensaje a mi profesor?</div>
+
+                <!-- Technical -->
+                <div class="faq-category-header" data-i18n="faq.cat_tecnico">⚙️ Técnico</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('¿Qué navegador debo usar?')"
+                    data-i18n="faq.q_browser">¿Qué navegador debo usar?</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('Mi libro o contenido no abre')"
+                    data-i18n="faq.q_content_open">Mi libro o contenido no abre</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('No puedo escuchar el audio')"
+                    data-i18n="faq.q_audio">No puedo escuchar el audio</div>
+                <div class="faq-list-item" onclick="sendFAQQuestion('La plataforma está lenta o no carga')"
+                    data-i18n="faq.q_slow">La plataforma está lenta o no carga</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openFAQ() {
+            const overlay = document.getElementById('faqOverlay');
+            overlay.classList.add('active');
+        }
+
+        function closeFAQ(event) {
+            // Close if clicked on overlay background or close button (if event is undefined/null it means direct call)
+            if (!event || event.target.id === 'faqOverlay' || event.target.classList.contains('close-btn')) {
+                document.getElementById('faqOverlay').classList.remove('active');
+            }
+        }
     </script>
 </body>
 
