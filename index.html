@@ -532,6 +532,7 @@
 
             .chips-grid {
                 gap: 8px;
+                grid-template-columns: 1fr;
             }
 
             .chip-btn {
@@ -892,40 +893,35 @@
                     </div>
 
                     <div class="chips-grid">
-                        <button class="chip-btn" onclick="sendOfflineResponse('code_error')"
-                            data-i18n="chips.code_error">
+                        <button class="chip-btn" onclick="sendOfflineResponse('code_error')">
                             <span class="chip-icon">🚫</span>
-                            Mi código ya está utilizado, no es válido
+                            <span data-i18n="chips.code_error">Mi código ya está utilizado, no es válido</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('login_error')"
-                            data-i18n="chips.login_error">
+                        <button class="chip-btn" onclick="sendOfflineResponse('login_error')">
                             <span class="chip-icon">🔐</span>
-                            No puedo entrar a la plataforma
+                            <span data-i18n="chips.login_error">No puedo entrar a la plataforma</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('task_error')"
-                            data-i18n="chips.task_error">
+                        <button class="chip-btn" onclick="sendOfflineResponse('task_error')">
                             <span class="chip-icon">📝</span>
-                            No puedo hacer una tarea
+                            <span data-i18n="chips.task_error">No puedo hacer una tarea</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('material_missing')"
-                            data-i18n="chips.material_missing">
+                        <button class="chip-btn" onclick="sendOfflineResponse('material_missing')">
                             <span class="chip-icon">📚</span>
-                            Mi material ya no está
+                            <span data-i18n="chips.material_missing">Mi material ya no está</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('buy_book')" data-i18n="chips.buy_book">
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_book')">
                             <span class="chip-icon">📖</span>
-                            ¿No me aparece la tarea en mi plataforma?
+                            <span data-i18n="chips.buy_book">¿No me aparece la tarea en mi plataforma?</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('buy_license')"
-                            data-i18n="chips.buy_license">
+                        <button class="chip-btn" onclick="sendOfflineResponse('buy_license')">
                             <span class="chip-icon">💳</span>
-                            ¿Dónde compro mi libro ó licencia?
+                            <span data-i18n="chips.buy_license">¿Dónde compro mi libro ó licencia?</span>
                         </button>
-                        <button class="chip-btn" onclick="sendOfflineResponse('check_token')"
-                            data-i18n="chips.check_token"
+                        <button class="chip-btn"
+                            onclick="window.open('https://yepzhi.com/richmond-token-check/', '_blank')"
                             style="grid-column: span 2; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15);">
                             <span class="chip-icon">🕵️</span>
-                            Check Token / Validar Código
+                            <span data-i18n="chips.check_token">Check Token / Validar Código</span>
                         </button>
                         <!-- New FAQ Chip -->
                         <button class="chip-btn" onclick="openFAQ()"
