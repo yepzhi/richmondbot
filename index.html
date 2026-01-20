@@ -479,11 +479,18 @@
         .developer-credit {
             margin-top: 40px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             gap: 8px;
             width: 100%;
             padding-bottom: 20px;
+        }
+
+        .credit-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .footer-text-prefix {
@@ -938,10 +945,19 @@
                     </div>
 
                     <div class="developer-credit">
-                        <span class="footer-text-prefix">Created by</span>
-                        <a href="https://yepzhi.com" target="_blank" class="footer-btn">
-                            @yepzhi
-                        </a>
+                        <div class="credit-row">
+                            <span class="footer-text-prefix">Created by</span>
+                            <a href="https://yepzhi.com" target="_blank" class="footer-btn">
+                                @yepzhi
+                            </a>
+                        </div>
+                        <div class="credit-row">
+                            <span class="footer-text-prefix" style="font-size: 10px; opacity: 0.8;">Listen to</span>
+                            <a href="https://yepzhi.com/SERGRadio/" target="_blank" class="footer-btn"
+                                style="padding: 4px 12px; font-size: 11px; opacity: 0.9;">
+                                SERGRadio Live 🔴
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
