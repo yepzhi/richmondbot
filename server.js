@@ -11,6 +11,78 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
+// ====== ABUSE PROTECTION ======
+// Rate Limiter: 10 requests per minute per IP
+const rateLimitMap = new Map(); // IP -> { count, resetTime }
+const RATE_LIMIT = 10;
+const RATE_WINDOW_MS = 60 * 1000; // 1 minute
+
+// Duplicate Request Cache: Store last message hash per IP
+const lastMessageMap = new Map(); // IP -> { hash, response, timestamp }
+const DUPLICATE_CACHE_TTL = 30 * 1000; // 30 seconds
+
+function getClientIP(req) {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
+}
+
+function simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return hash.toString();
+}
+
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const entry = rateLimitMap.get(ip);
+
+    if (!entry || now > entry.resetTime) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW_MS });
+        return { allowed: true, remaining: RATE_LIMIT - 1 };
+    }
+
+    if (entry.count >= RATE_LIMIT) {
+        return { allowed: false, remaining: 0, retryAfter: Math.ceil((entry.resetTime - now) / 1000) };
+    }
+
+    entry.count++;
+    return { allowed: true, remaining: RATE_LIMIT - entry.count };
+}
+
+function checkDuplicate(ip, message) {
+    const now = Date.now();
+    const hash = simpleHash(message);
+    const entry = lastMessageMap.get(ip);
+
+    if (entry && entry.hash === hash && (now - entry.timestamp) < DUPLICATE_CACHE_TTL) {
+        return { isDuplicate: true, cachedResponse: entry.response };
+    }
+
+    return { isDuplicate: false };
+}
+
+function cacheResponse(ip, message, response) {
+    lastMessageMap.set(ip, {
+        hash: simpleHash(message),
+        response: response,
+        timestamp: Date.now()
+    });
+}
+
+// Cleanup old entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, entry] of rateLimitMap) {
+        if (now > entry.resetTime) rateLimitMap.delete(ip);
+    }
+    for (const [ip, entry] of lastMessageMap) {
+        if ((now - entry.timestamp) > DUPLICATE_CACHE_TTL * 2) lastMessageMap.delete(ip);
+    }
+}, 5 * 60 * 1000);
+// ====== END ABUSE PROTECTION ======
+
 // Load Q&A databases
 let qaSpanish = [];
 let qaEnglish = [];
@@ -333,16 +405,38 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
 // const TokenChecker = require('./token_checker'); // Removed
 // const tokenChecker = new TokenChecker(); // Removed
 
-// Chat endpoint (Refactored for RAG + Token Check)
+// Chat endpoint (Refactored for RAG + Token Check + Abuse Protection)
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages } = req.body;
         if (!messages || messages.length === 0) return res.status(400).json({ error: 'No messages' });
 
+        const clientIP = getClientIP(req);
         const lastMessage = messages[messages.length - 1].content;
         const language = detectLanguage(lastMessage);
 
-        console.log(`📝 User message(${language}): ${lastMessage.substring(0, 50)}...`);
+        // ====== ABUSE PROTECTION CHECKS ======
+        // 1. Rate Limit Check
+        const rateCheck = checkRateLimit(clientIP);
+        if (!rateCheck.allowed) {
+            console.warn(`🚫 Rate limit exceeded for IP: ${clientIP}`);
+            return res.status(429).json({
+                error: language === 'es'
+                    ? `Demasiadas solicitudes. Espera ${rateCheck.retryAfter} segundos.`
+                    : `Too many requests. Please wait ${rateCheck.retryAfter} seconds.`,
+                retryAfter: rateCheck.retryAfter
+            });
+        }
+
+        // 2. Duplicate Request Check
+        const dupCheck = checkDuplicate(clientIP, lastMessage);
+        if (dupCheck.isDuplicate) {
+            console.log(`♻️ Returning cached response for duplicate request from ${clientIP}`);
+            return res.json(dupCheck.cachedResponse);
+        }
+        // ====== END ABUSE PROTECTION ======
+
+        console.log(`📝 User message(${language}) [${clientIP}]: ${lastMessage.substring(0, 50)}...`);
 
         // 0. TOKEN CHECKER INTENT
         // "Validar token POTATO"
@@ -378,8 +472,9 @@ app.post('/api/chat', async (req, res) => {
 
             if (aiResponse) {
                 console.log('✅ AI response delivered');
-                const finalResponse = aiResponse;
-                return res.json({ content: [{ text: finalResponse }], source: 'gemini' });
+                const responseObj = { content: [{ text: aiResponse }], source: 'gemini' };
+                cacheResponse(clientIP, lastMessage, responseObj);
+                return res.json(responseObj);
             }
         } else {
             console.log('❌ No API Key found.');
@@ -388,8 +483,11 @@ app.post('/api/chat', async (req, res) => {
         // 3. Fallback: If AI failed but we had an offline match, use it raw
         if (offlineMatch) {
             console.log('⚠️ AI Failed, using Offline Match raw.');
+            console.log('⚠️ AI Failed, using Offline Match raw.');
             const response = offlineMatch.answer + formatLinks(offlineMatch.links);
-            return res.json({ content: [{ text: response }], source: 'offline-fallback' });
+            const responseObj = { content: [{ text: response }], source: 'offline-fallback' };
+            cacheResponse(clientIP, lastMessage, responseObj);
+            return res.json(responseObj);
         }
 
         // 4. Ultimate Fallback
@@ -398,7 +496,10 @@ app.post('/api/chat', async (req, res) => {
             ? 'Lo siento, mis servidores están ocupados y no encontré información sobre eso. Por favor contacta a soporte en 📧 rlp-ug.knowledgeowl.com/help'
             : 'Sorry, I usually know that, but my brain is tired. Please contact support at 📧 rlp-ug.knowledgeowl.com/help';
 
-        res.json({ content: [{ text: fallbackMessage }], source: 'fallback' });
+        const finalFallbackReq = { content: [{ text: fallbackMessage }], source: 'fallback' };
+        // We cache the fallback too so spamming "asdf" gets cached "I don't know"
+        cacheResponse(clientIP, lastMessage, finalFallbackReq);
+        res.json(finalFallbackReq);
 
     } catch (error) {
         console.error('❌ Server error:', error);
