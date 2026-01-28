@@ -27,9 +27,10 @@
             "nueva cuenta"
         ],
         "question": "¿Cómo me registro en la plataforma?",
-        "answer": "Para registrarte:\n1. Ve a www.richmondlp.com/register\n2. Ingresa tu Access Code\n3. Llena tus datos personales\n4. Ingresa Class Code (opcional)\n5. Confirma tu email\n\nSi no llega el email, revisa spam o usa 'Resend confirmation email'.",
+        "answer": "Para registrarte:\n1. Ve a www.richmondlp.com/register\n2. Ingresa tu Access Code\n3. Llena tus datos personales\n4. Ingresa Class Code (opcional)\n5. Confirma tu email\n\n📄 **[Descargar Manual PDF Paso a Paso](/manual_registro.pdf)**",
         "links": [
-            "https://richmondlp.com/register"
+            "https://richmondlp.com/register",
+            "/manual_registro.pdf"
         ],
         "category": "registro"
     },
@@ -380,5 +381,18 @@
             "https://richmondlp.com"
         ],
         "category": "acceso"
+    },
+    {
+        "keywords": [
+            "es un pdf",
+            "libro pdf",
+            "descargar pdf",
+            "licencia pdf",
+            "donde esta mi pdf"
+        ],
+        "question": "¿El libro es un archivo PDF?",
+        "answer": "⛔ **Importante**: El libro digital **NO es un PDF** ni se descarga como archivo.\n\nEs un **eBook interactivo** que solo funciona dentro de la plataforma.\nAl activar tu licencia, el libro aparecerá en 'My Study Materials' o 'Class Materials' y se abre en el navegador.",
+        "links": [],
+        "category": "materiales"
     }
 ]

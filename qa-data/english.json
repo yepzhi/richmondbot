@@ -27,9 +27,10 @@
             "new account"
         ],
         "question": "How do I register on the platform?",
-        "answer": "To register:\n1. Go to www.richmondlp.com/register\n2. Enter your Access Code\n3. Fill in your personal details\n4. Enter Class Code (optional)\n5. Confirm your email\n\nIf you don't receive the email, check spam or use 'Resend confirmation email'.",
+        "answer": "To register:\n1. Go to www.richmondlp.com/register\n2. Enter your Access Code\n3. Fill in your personal details\n4. Enter Class Code (optional)\n5. Confirm your email\n\n📄 **[Download Manual PDF](/manual_registro.pdf)**",
         "links": [
-            "https://richmondlp.com/register"
+            "https://richmondlp.com/register",
+            "/manual_registro.pdf"
         ],
         "category": "registration"
     },
@@ -371,5 +372,17 @@
             "https://richmondlp.com"
         ],
         "category": "access"
+    },
+    {
+        "keywords": [
+            "is it a pdf",
+            "book pdf",
+            "download pdf",
+            "where IS my pdf"
+        ],
+        "question": "Is the book a PDF file?",
+        "answer": "⛔ **Important**: The digital book is **NOT a PDF** and cannot be downloaded as a file.\n\nIt is an **interactive eBook** that lives inside the platform.\nOnce activated, it appears in 'My Study Materials' or 'Class Materials' and opens in your browser.",
+        "links": [],
+        "category": "materials"
     }
 ]

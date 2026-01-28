@@ -1,4 +1,5 @@
 const { chromium } = require('playwright-extra');
+require('dotenv').config(); // Load environment variables
 const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 // Apply the stealth plugin
@@ -7,8 +8,14 @@ chromium.use(stealthPlugin());
 // Configuration
 const LOGIN_URL = 'https://richmondlp.com/login';
 const ADMIN_URL = 'https://richmondlp.com/admin';
-const USER = 'mramirez@richmondelt.com';
-const PASS = 'Pass2026*';
+// Credentials from Environment
+const USER = process.env.RICHMOND_USER;
+const PASS = process.env.RICHMOND_PASS;
+
+if (!USER || !PASS) {
+    console.error("❌ Missing RICHMOND_USER or RICHMOND_PASS in .env");
+    // Don't exit process as this module might be required, but warn loudly
+}
 const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 // State
