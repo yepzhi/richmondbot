@@ -16,7 +16,7 @@ const translations = {
             material_missing: "Mi material ya no está",
             buy_book: "¿No me aparece la tarea en mi plataforma?",
             buy_license: "¿Dónde compro mi libro ó licencia?",
-            manual: "DESCARGA la guía paso a paso de registro y activación (Libros Físicos y Digitales)",
+            manual: "Descarga la guía paso a paso de registro y activación (Libros Físicos y Digitales)",
             check_token: "Check Token / Validar Código"
         },
         faq: {
@@ -78,7 +78,7 @@ const translations = {
             material_missing: "My material is missing",
             buy_book: "I can't see the homework in my platform?",
             buy_license: "Where do I buy my book or license?",
-            manual: "DOWNLOAD Step-by-Step Guide: Registration & Activation (Physical & Digital Books)",
+            manual: "Download step-by-step registration & activation guide (Physical and Digital Books)",
             check_token: "Check Token / Validate Code"
         },
         faq: {
