@@ -444,7 +444,7 @@ app.post('/api/chat', async (req, res) => {
 
         if (tokenIntentRegex.test(lastMessage) && (lastMessage.includes('token') || lastMessage.includes('code') || lastMessage.includes('código'))) {
             // Just return a static response pointing to external tool
-            const fallbackUrl = "https://huggingface.co/spaces/yepzhi/richmond-token-check";
+            const fallbackUrl = "https://yepzhi.com/richmond-token-check/";
             const responseText = language === 'es'
                 ? `⚠️ ** Validación Automática Deshabilitada **\n\nPor seguridad, la validación de tokens se realiza en una herramienta dedicada.\n\n🔗 ** [Abrir Validador de Tokens](${fallbackUrl}) ** `
                 : `⚠️ ** Please use the dedicated tool **\n\nFor security reasons, token validation has been moved.\n\n🔗 ** [Open Token Checker](${fallbackUrl}) ** `;
