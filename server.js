@@ -316,10 +316,9 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     // If discovery hasn't finished or found nothing, fallback to hardcoded list
     const candidates = AVAILABLE_GEMINI_MODELS.length > 0
         ? AVAILABLE_GEMINI_MODELS
-        : ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
+        : ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
 
     // Construct Contextual Prompt (RAG)
-    // 1. Base identity (Richmond Persona)
     // 1. Base identity (Richmond Persona)
     let systemInstruction = `Role: "Richmond Learning Platform Helper" (Educational Partner).
     Personality: Professional, Helpful, but STRICT about topic relevance.
@@ -392,7 +391,7 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
             console.log(`✅ Success with ${model}`);
             return ans;
         } catch (error) {
-            console.warn(`⚠️ Model ${model} failed: ${error.message.split('\n')[0]}`);
+            console.warn(`⚠️ Model ${model} failed: ${error.message}`);
         }
     }
 

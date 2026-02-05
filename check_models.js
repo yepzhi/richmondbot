@@ -21,13 +21,11 @@ async function listModels() {
         // Let's try 'gemini-1.0-pro' which is the newest stable name.
 
         const possibleModels = [
+            "gemini-2.0-flash",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash-lite",
             "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-flash-001",
-            "gemini-1.0-pro",
-            "gemini-pro",
-            "gemini-pro-vision",
-            "gemini-1.0-pro-latest"
+            "gemini-1.5-flash-latest"
         ];
 
         for (const modelName of possibleModels) {
@@ -35,9 +33,9 @@ async function listModels() {
                 const model = genAI.getGenerativeModel({ model: modelName });
                 const result = await model.generateContent("Hello");
                 console.log(`✅ Model found and working: ${modelName}`);
-                return; // Found one!
+                // return; // Found one! Keep checking for preferred Flash
             } catch (e) {
-                console.log(`❌ ${modelName} failed: ${e.message.split(':')[0]}`);
+                console.log(`❌ ${modelName} failed: ${e.message}`);
             }
         }
 
