@@ -126,14 +126,21 @@ async function discoverGeminiModels(apiKey) {
             .map(m => m.name.split('/').pop()); // Store short names
 
         if (validModels.length > 0) {
-            // Sort to prioritize stable models (heuristically)
+            // Sort to prioritize newer models first (2.5 > 2.0 > 1.5), then flash > pro
             AVAILABLE_GEMINI_MODELS = validModels.sort((a, b) => {
-                // Prefer 'flash' (fast), then 'pro'
+                // Extract version number for comparison
+                const getVersion = (name) => {
+                    const m = name.match(/(\d+\.\d+)/);
+                    return m ? parseFloat(m[1]) : 0;
+                };
+                const vDiff = getVersion(b) - getVersion(a); // Higher version first
+                if (vDiff !== 0) return vDiff;
+                // Same version: prefer flash, then lite, then pro
                 if (a.includes('flash') && !b.includes('flash')) return -1;
                 if (b.includes('flash') && !a.includes('flash')) return 1;
                 return 0;
             });
-            console.log(`✅ Auto-discovered Gemini Models: ${AVAILABLE_GEMINI_MODELS.join(', ')}`);
+            console.log(`✅ Auto-discovered Gemini Models (sorted): ${AVAILABLE_GEMINI_MODELS.join(', ')}`);
         } else {
             console.warn('⚠️ No suitable Gemini chat model found available for this Key.');
         }
@@ -316,7 +323,7 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     // If discovery hasn't finished or found nothing, fallback to hardcoded list
     const candidates = AVAILABLE_GEMINI_MODELS.length > 0
         ? AVAILABLE_GEMINI_MODELS
-        : ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+        : ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
 
     // Construct Contextual Prompt (RAG)
     // 1. Base identity (Richmond Persona)

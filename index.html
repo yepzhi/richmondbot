@@ -1326,23 +1326,37 @@
             conversationHistory.push({ role: "user", content: question });
             const messagesToSend = conversationHistory.slice(-10);
 
-            const response = await fetch(API_ENDPOINT, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ messages: messagesToSend })
-            });
+            let response;
+            try {
+                response = await fetch(API_ENDPOINT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ messages: messagesToSend })
+                });
+            } catch (networkErr) {
+                throw new Error("🔌 No puedo conectar al servidor. Revisa tu conexión.");
+            }
 
             if (!response.ok) {
                 if (response.status === 429) {
                     throw new Error("⏳ Estoy recibiendo muchos mensajes. Espera 1 minuto.");
                 }
-                if (response.status === 503) {
-                    throw new Error("🔧 El servicio está ocupado. Intenta de nuevo.");
+                if (response.status === 503 || response.status === 502) {
+                    throw new Error("🔧 El servidor está iniciando. Intenta de nuevo en ~30 segundos.");
                 }
                 throw new Error("No puedo conectar. (Status: " + response.status + ")");
             }
 
-            const data = await response.json();
+            // Safely parse JSON — HF Spaces sometimes returns HTML when waking up
+            let data;
+            const rawText = await response.text();
+            try {
+                data = JSON.parse(rawText);
+            } catch (parseErr) {
+                console.warn('Non-JSON response:', rawText.substring(0, 200));
+                throw new Error("🔧 El servidor está iniciando. Intenta de nuevo en ~30 segundos.");
+            }
+
             const text = data.content?.[0]?.text || "No response.";
             conversationHistory.push({ role: "assistant", content: text });
             return text;
