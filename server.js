@@ -323,17 +323,19 @@ async function queryOpenSource(messages, apiKey, language = 'es', relevantContex
         'microsoft/Phi-3-mini-4k-instruct'         // Very reliable fallback
     ];
 
+    let lastError = "No HF API Key";
     for (const model of models) {
         try {
             console.log(`🤖 Trying AI Model: ${model}...`);
             const ans = await callHF(model);
-            if (ans) return ans;
+            if (ans) return { text: ans, error: null };
         } catch (e) {
             console.warn(`⚠️ Model ${model} failed: ${e.message}`);
+            lastError = e.message;
         }
     }
 
-    return null;
+    return { text: null, error: `HF_API_ERR: ${lastError}` };
 }
 
 // Google Gemini API call (REST) with Chain Fallback + RAG + History
@@ -412,20 +414,22 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     }
 
     // Try models one by one
+    let lastError = "No models available";
     for (const model of candidates) {
         try {
             console.log(`🤖 Trying Gemini Model: ${model}...`);
             const ans = await callRest(model);
             console.log(`✅ Success with ${model}`);
-            return ans;
+            return { text: ans, error: null };
         } catch (error) {
             console.warn(`⚠️ Model ${model} failed: ${error.message}`);
+            lastError = error.message;
         }
     }
 
 
     console.error("❌ All available Gemini models failed.");
-    return null;
+    return { text: null, error: `GEMINI_ERR: ${lastError}` };
 }
 
 // Token Checker Module Removed (External Tool Used)
@@ -491,25 +495,25 @@ app.post('/api/chat', async (req, res) => {
         // 2. Call AI with Context (Primary Response)
         const geminiKey = process.env.GEMINI_API_KEY;
         const hfKey = process.env.HF_API_KEY;
-        let aiResponse = null;
+        let aiResult = { text: null, error: "No API Keys found" };
 
         if (geminiKey) {
             console.log('🤖 Invoking Gemini AI with RAG Context...');
-            aiResponse = await queryGemini(messages, geminiKey, language, relevantKnowledge);
+            aiResult = await queryGemini(messages, geminiKey, language, relevantKnowledge);
         }
 
-        if (!aiResponse && hfKey) {
+        if (!aiResult.text && hfKey) {
             console.log('🤖 Invoking OpenSource AI (Hugging Face) with RAG Context...');
-            aiResponse = await queryOpenSource(messages, hfKey, language, relevantKnowledge);
+            aiResult = await queryOpenSource(messages, hfKey, language, relevantKnowledge);
         }
 
-        if (aiResponse) {
+        if (aiResult.text) {
             console.log('✅ AI response delivered');
-            const responseObj = { content: [{ text: aiResponse }], source: geminiKey && aiResponse ? 'gemini' : 'huggingface' };
+            const responseObj = { content: [{ text: aiResult.text }], source: geminiKey && aiResult.error === null ? 'gemini' : 'huggingface' };
             cacheResponse(clientIP, lastMessage, responseObj);
             return res.json(responseObj);
         } else {
-            console.log('❌ AI Engines failed or no API keys configured.');
+            console.log('❌ AI Engines failed or no API keys configured. Error:', aiResult.error);
         }
 
         // 3. Fallback: If AI failed but we had an offline match, use it raw
@@ -524,8 +528,8 @@ app.post('/api/chat', async (req, res) => {
         // 4. Ultimate Fallback
         console.log('⚠️ No AI and No Offline match.');
         const fallbackMessage = language === 'es'
-            ? 'Lo siento, mis servidores están ocupados y no encontré información sobre eso. Por favor contacta a soporte en 📧 rlp-ug.knowledgeowl.com/help'
-            : 'Sorry, I usually know that, but my brain is tired. Please contact support at 📧 rlp-ug.knowledgeowl.com/help';
+            ? `Lo siento, mis servidores están ocupados y no encontré información sobre eso. Por favor contacta a soporte en 📧 rlp-ug.knowledgeowl.com/help\n\n*(Debug: ${aiResult.error})*`
+            : `Sorry, I usually know that, but my brain is tired. Please contact support at 📧 rlp-ug.knowledgeowl.com/help\n\n*(Debug: ${aiResult.error})*`;
 
         const finalFallbackReq = { content: [{ text: fallbackMessage }], source: 'fallback' };
         // We cache the fallback too so spamming "asdf" gets cached "I don't know"
