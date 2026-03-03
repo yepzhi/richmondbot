@@ -119,23 +119,42 @@ async function discoverGeminiModels(apiKey) {
             return;
         }
 
-        // Filter valid models that support generateContent
-        // Prioritize 'flash' and 'pro' models, avoid 'vision' only models if possible
+        // Filter valid models: must support generateContent AND be usable text chat models
+        // Exclude: image-generation, tts, robotics, computer-use, vision-only, customtools, embedding
+        const EXCLUDED_PATTERNS = [
+            'image', 'tts', 'robotics', 'computer-use', 'vision',
+            'customtools', 'embed', 'aqa', 'bidi', 'thinking'
+        ];
+
         const validModels = data.models
-            .filter(m => m.name.includes('gemini') && m.supportedGenerationMethods.includes('generateContent'))
-            .map(m => m.name.split('/').pop()); // Store short names
+            .filter(m => {
+                const shortName = m.name.split('/').pop();
+                // Must be a gemini model that supports generateContent
+                if (!m.name.includes('gemini')) return false;
+                if (!m.supportedGenerationMethods.includes('generateContent')) return false;
+                // Exclude specialty models that won't work for text chat or have 0 free-tier quota
+                if (EXCLUDED_PATTERNS.some(pattern => shortName.includes(pattern))) return false;
+                return true;
+            })
+            .map(m => m.name.split('/').pop());
 
         if (validModels.length > 0) {
-            // Sort to prioritize newer models first (2.5 > 2.0 > 1.5), then flash > pro
+            // Sort: stable models first (no 'preview'), then by version (2.5 > 2.0), then flash > pro
             AVAILABLE_GEMINI_MODELS = validModels.sort((a, b) => {
+                // Stable models (no 'preview') come first
+                const aPreview = a.includes('preview') ? 1 : 0;
+                const bPreview = b.includes('preview') ? 1 : 0;
+                if (aPreview !== bPreview) return aPreview - bPreview;
+
                 // Extract version number for comparison
                 const getVersion = (name) => {
                     const m = name.match(/(\d+\.\d+)/);
                     return m ? parseFloat(m[1]) : 0;
                 };
-                const vDiff = getVersion(b) - getVersion(a); // Higher version first
+                const vDiff = getVersion(b) - getVersion(a);
                 if (vDiff !== 0) return vDiff;
-                // Same version: prefer flash, then lite, then pro
+
+                // Same version: prefer flash (cheaper/faster), then lite, then pro
                 if (a.includes('flash') && !b.includes('flash')) return -1;
                 if (b.includes('flash') && !a.includes('flash')) return 1;
                 return 0;
@@ -240,19 +259,10 @@ function formatLinks(links) {
 }
 
 // Open Source AI (DeepSeek / Phi-3) via Hugging Face
-async function queryOpenSource(messages, apiKey, language = 'es') {
+async function queryOpenSource(messages, apiKey, language = 'es', relevantContext = null) {
     const lastMessage = messages[messages.length - 1].content;
 
-    // Load context
-    const contextDB = language === 'es' ? qaSpanish : qaEnglish;
-
-    // Simplificar contexto para modelos más pequeños (Top 15 Q&A)
-    const contextText = contextDB.slice(0, 15).map(qa => `- ${qa.category}: ${qa.answer}`).join('\n');
-
-    // Prompt optimizado para modelos Chat/Instruct (Formato ChatML o similar)
-    const systemInstruction = `You are the 'Richmond Learning Platform Helper'. Your expertise is STRICTLY limited to Richmond platforms, books, licenses, support, and sales.
-    CONTEXT (Your BIBLE - Do not invent outside this):
-    ${contextText}
+    let systemInstruction = `You are the 'Richmond Learning Platform Helper'. Your expertise is STRICTLY limited to Richmond platforms, books, licenses, support, and sales.
     
     INSTRUCTIONS:
     - ANSWER ONLY based on the provided CONTEXT. Do not hallucinate or invent information.
@@ -260,6 +270,14 @@ async function queryOpenSource(messages, apiKey, language = 'es') {
     - Answer in ${language === 'es' ? 'Spanish' : 'English'}.
     - Be concise and friendly 🚀.
     - CONTACT INFO: If asked for support, ALWAYS use: WhatsApp https://wa.me/message/6O4USI5SGF3IA1`;
+
+    if (relevantContext) {
+        systemInstruction += `\n\nCRITICAL INFO FOUND IN DATABASE:\nUser's specific issue matches this official solution: "${relevantContext.answer}".\n\nINSTRUCTION: Use the above "Official Solution" to answer the user, adapting it carefully.`;
+    } else {
+        const contextDB = language === 'es' ? qaSpanish : qaEnglish;
+        const contextText = contextDB.slice(0, 15).map(qa => `- ${qa.category}: ${qa.answer}`).join('\n');
+        systemInstruction += `\n\nCONTEXT (Your BIBLE - Do not invent outside this):\n${contextText}`;
+    }
 
     const fullPrompt = `<|system|>\n${systemInstruction}\n<|user|>\n${lastMessage}\n<|assistant|>\n`;
 
@@ -321,9 +339,12 @@ async function queryOpenSource(messages, apiKey, language = 'es') {
 // Google Gemini API call (REST) with Chain Fallback + RAG + History
 async function queryGemini(messages, apiKey, language = 'es', relevantContext = null) {
     // If discovery hasn't finished or found nothing, fallback to hardcoded list
-    const candidates = AVAILABLE_GEMINI_MODELS.length > 0
+    const preferredModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    const allCandidates = AVAILABLE_GEMINI_MODELS.length > 0
         ? AVAILABLE_GEMINI_MODELS
-        : ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+        : preferredModels;
+    // Only try the top 5 models to avoid long timeouts
+    const candidates = allCandidates.slice(0, 5);
 
     // Construct Contextual Prompt (RAG)
     // 1. Base identity (Richmond Persona)
@@ -468,27 +489,31 @@ app.post('/api/chat', async (req, res) => {
         }
 
         // 2. Call AI with Context (Primary Response)
-        const apiKey = process.env.GEMINI_API_KEY || process.env.HF_API_KEY;
+        const geminiKey = process.env.GEMINI_API_KEY;
+        const hfKey = process.env.HF_API_KEY;
+        let aiResponse = null;
 
-        if (apiKey) {
-            console.log('🤖 Invoking AI with RAG Context...');
+        if (geminiKey) {
+            console.log('🤖 Invoking Gemini AI with RAG Context...');
+            aiResponse = await queryGemini(messages, geminiKey, language, relevantKnowledge);
+        }
 
-            // Call Gemini/AI with the offline context if found
-            const aiResponse = await queryGemini(messages, apiKey, language, relevantKnowledge);
+        if (!aiResponse && hfKey) {
+            console.log('🤖 Invoking OpenSource AI (Hugging Face) with RAG Context...');
+            aiResponse = await queryOpenSource(messages, hfKey, language, relevantKnowledge);
+        }
 
-            if (aiResponse) {
-                console.log('✅ AI response delivered');
-                const responseObj = { content: [{ text: aiResponse }], source: 'gemini' };
-                cacheResponse(clientIP, lastMessage, responseObj);
-                return res.json(responseObj);
-            }
+        if (aiResponse) {
+            console.log('✅ AI response delivered');
+            const responseObj = { content: [{ text: aiResponse }], source: geminiKey && aiResponse ? 'gemini' : 'huggingface' };
+            cacheResponse(clientIP, lastMessage, responseObj);
+            return res.json(responseObj);
         } else {
-            console.log('❌ No API Key found.');
+            console.log('❌ AI Engines failed or no API keys configured.');
         }
 
         // 3. Fallback: If AI failed but we had an offline match, use it raw
         if (offlineMatch) {
-            console.log('⚠️ AI Failed, using Offline Match raw.');
             console.log('⚠️ AI Failed, using Offline Match raw.');
             const response = offlineMatch.answer + formatLinks(offlineMatch.links);
             const responseObj = { content: [{ text: response }], source: 'offline-fallback' };
