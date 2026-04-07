@@ -1016,7 +1016,7 @@
         </div>
     </div>
 
-    <script src="translations.js"></script>
+    <script src="translations.js?v=5.5.0"></script>
     <script>
         // --- CONFIGURATION ---
         const API_ENDPOINT = 'https://yepzhi-richmondbot.hf.space/api/chat';
@@ -1337,7 +1337,11 @@
 
             if (!response.ok) {
                 if (response.status === 429) {
-                    throw new Error("⏳ Estoy recibiendo muchos mensajes. Espera 1 minuto.");
+                    // Try to use the server's localized message first
+                    const serverMsg = await response.text().catch(() => null);
+                    throw new Error(serverMsg || (currentLang === 'es' 
+                        ? "Reintenta más tarde, modelo agotado. Reintenta en 30s." 
+                        : "Quota exceeded. Please retry in 30s."));
                 }
                 if (response.status === 503 || response.status === 502) {
                     throw new Error("🔧 El servidor está iniciando. Intenta de nuevo en ~30 segundos.");

@@ -111,7 +111,9 @@ async function discoverGeminiModels(apiKey) {
     if (!apiKey) return;
     try {
         console.log('🔍 Discovering available Gemini models...');
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models`, {
+            headers: { 'x-goog-api-key': apiKey }
+        });
         const data = await response.json();
 
         if (!data.models) {
@@ -129,8 +131,8 @@ async function discoverGeminiModels(apiKey) {
         const validModels = data.models
             .filter(m => {
                 const shortName = m.name.split('/').pop();
-                // Must be a gemini model that supports generateContent
-                if (!m.name.includes('gemini')) return false;
+                // User requirement: Nothing below 2.0
+                if (!m.name.includes('gemini-2')) return false;
                 if (!m.supportedGenerationMethods.includes('generateContent')) return false;
                 // Exclude specialty models that won't work for text chat or have 0 free-tier quota
                 if (EXCLUDED_PATTERNS.some(pattern => shortName.includes(pattern))) return false;
@@ -159,7 +161,7 @@ async function discoverGeminiModels(apiKey) {
                 if (b.includes('flash') && !a.includes('flash')) return 1;
                 return 0;
             });
-            console.log(`✅ Auto-discovered Gemini Models (sorted): ${AVAILABLE_GEMINI_MODELS.join(', ')}`);
+            console.log(`✅ Auto-discovered Gemini Models (2.0+): ${AVAILABLE_GEMINI_MODELS.join(', ')}`);
         } else {
             console.warn('⚠️ No suitable Gemini chat model found available for this Key.');
         }
@@ -341,7 +343,7 @@ async function queryOpenSource(messages, apiKey, language = 'es', relevantContex
 // Google Gemini API call (REST) with Chain Fallback + RAG + History
 async function queryGemini(messages, apiKey, language = 'es', relevantContext = null) {
     // If discovery hasn't finished or found nothing, fallback to hardcoded list
-    const preferredModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    const preferredModels = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
     const allCandidates = AVAILABLE_GEMINI_MODELS.length > 0
         ? AVAILABLE_GEMINI_MODELS
         : preferredModels;
@@ -395,15 +397,23 @@ async function queryGemini(messages, apiKey, language = 'es', relevantContext = 
     }
 
     async function callRest(modelName) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
+            },
             body: JSON.stringify({ contents: contents })
         });
 
         if (!response.ok) {
+            if (response.status === 429) {
+                return language === 'es' 
+                    ? "Reintenta más tarde, modelo agotado. Reintenta en 30s."
+                    : "Quota exceeded. Please retry in 30s.";
+            }
             const err = await response.text();
             throw new Error(`HTTP ${response.status}: ${err}`);
         }
